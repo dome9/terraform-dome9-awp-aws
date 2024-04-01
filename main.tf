@@ -3,25 +3,25 @@ data "dome9_cloudaccount_aws" "cloud_account" {
 }
 
 # The data source retrieves the onboarding data of an AWS account in Dome9 AWP.
-data "dome9_awp_aws_get_onboarding_data" "dome9_awp_aws_onboarding_data_source" {
+data "dome9_awp_aws_onboarding_data" "dome9_awp_aws_onboarding_data_source" {
   cloud_account_id = data.dome9_cloudaccount_aws.cloud_account.id
 }
 
 # Define local values used in multiple places in the configuration.
 locals {
-  awp_template_version = "8"
+  awp_module_version = "7"
   scan_mode                                         = var.awp_scan_mode
-  stage                                             = data.dome9_awp_aws_get_onboarding_data.dome9_awp_aws_onboarding_data_source.stage
-  region                                            = data.dome9_awp_aws_get_onboarding_data.dome9_awp_aws_onboarding_data_source.region
-  cloud_guard_backend_account_id                    = data.dome9_awp_aws_get_onboarding_data.dome9_awp_aws_onboarding_data_source.cloud_guard_backend_account_id
-  agentless_bucket_name                             = data.dome9_awp_aws_get_onboarding_data.dome9_awp_aws_onboarding_data_source.agentless_bucket_name
-  remote_functions_prefix_key                       = data.dome9_awp_aws_get_onboarding_data.dome9_awp_aws_onboarding_data_source.remote_functions_prefix_key
-  remote_snapshots_utils_function_name              = data.dome9_awp_aws_get_onboarding_data.dome9_awp_aws_onboarding_data_source.remote_snapshots_utils_function_name
-  remote_snapshots_utils_function_run_time          = data.dome9_awp_aws_get_onboarding_data.dome9_awp_aws_onboarding_data_source.remote_snapshots_utils_function_run_time
-  remote_snapshots_utils_function_time_out          = data.dome9_awp_aws_get_onboarding_data.dome9_awp_aws_onboarding_data_source.remote_snapshots_utils_function_time_out
-  awp_client_side_security_group_name               = data.dome9_awp_aws_get_onboarding_data.dome9_awp_aws_onboarding_data_source.awp_client_side_security_group_name
-  cross_account_role_external_id                    = var.awp_cross_account_role_external_id != null ? var.awp_cross_account_role_external_id : data.dome9_awp_aws_get_onboarding_data.dome9_awp_aws_onboarding_data_source.cross_account_role_external_id
-  remote_snapshots_utils_function_s3_pre_signed_url = data.dome9_awp_aws_get_onboarding_data.dome9_awp_aws_onboarding_data_source.remote_snapshots_utils_function_s3_pre_signed_url
+  stage                                             = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.stage
+  region                                            = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.region
+  cloud_guard_backend_account_id                    = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.cloud_guard_backend_account_id
+  agentless_bucket_name                             = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.agentless_bucket_name
+  remote_functions_prefix_key                       = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.remote_functions_prefix_key
+  remote_snapshots_utils_function_name              = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.remote_snapshots_utils_function_name
+  remote_snapshots_utils_function_run_time          = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.remote_snapshots_utils_function_run_time
+  remote_snapshots_utils_function_time_out          = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.remote_snapshots_utils_function_time_out
+  awp_client_side_security_group_name               = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.awp_client_side_security_group_name
+  cross_account_role_external_id                    = var.awp_cross_account_role_external_id != null ? var.awp_cross_account_role_external_id : data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.cross_account_role_external_id
+  remote_snapshots_utils_function_s3_pre_signed_url = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.remote_snapshots_utils_function_s3_pre_signed_url
 }
 
 # This Terraform file defines the configuration for creating an IAM role that allows CloudGuard access to the AWS account.
@@ -56,6 +56,11 @@ resource "aws_iam_role" "CloudGuardAWPCrossAccountRole" {
       }
     }]
   })
+
+  tags = {
+    Owner = "CG.AWP"
+    "CG.AL.TF.MODULE_VERSION" = local.awp_module_version
+  }
 
   # The `depends_on` attribute specifies that this IAM role depends on the `aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction` resource.
   depends_on = [aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction]
@@ -248,12 +253,12 @@ resource "aws_lambda_function" "CloudGuardAWPSnapshotsUtilsFunction" {
       CP_AWP_SCAN_MODE           = local.scan_mode
       CP_AWP_SECURITY_GROUP_NAME = local.awp_client_side_security_group_name
       AWS_PARTITION              = data.aws_partition.current.partition
-      CP_AWP_LOG_LEVEL           = "DEBUG"
     }
   }
 
   tags = {
     Owner = "CG.AWP"
+    "CG.AL.TF.MODULE_VERSION" = local.awp_module_version
   }
 }
 
@@ -273,6 +278,10 @@ resource "aws_cloudwatch_log_group" "CloudGuardAWPSnapshotsUtilsLogGroup" {
   depends_on = [
     aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction
   ]
+  tags = {
+    Owner = "CG.AWP"
+    "CG.AL.TF.MODULE_VERSION" = local.awp_module_version
+  }
 }
 
 # AWP proxy lambda function role
@@ -295,6 +304,7 @@ resource "aws_iam_role" "CloudGuardAWPSnapshotsUtilsLambdaExecutionRole" {
 
   tags = {
     Owner = "CG.AWP"
+    "CG.AL.TF.MODULE_VERSION" = local.awp_module_version
   }
 }
 
@@ -443,6 +453,7 @@ resource "aws_iam_policy" "CloudGuardAWPLambdaExecutionRolePolicy" {
       },
     ]
   })
+  
 }
 
 # The CloudGuardAWPLambdaExecutionRolePolicyAttachment resource attaches the CloudGuardAWPLambdaExecutionRolePolicy to the CloudGuardAWPSnapshotsUtilsLambdaExecutionRole.
@@ -513,11 +524,26 @@ resource "aws_iam_policy_attachment" "CloudGuardAWPLambdaExecutionRolePolicyAtta
 # END AWP proxy lambda function role policy
 
 # aws_lambda_invocation : The Lambda invocation that is used to clean up the resources after the onboarding process.
-resource "aws_lambda_invocation" "CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation" {
+resource "aws_lambda_invocation" "CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_InAccount" {
   function_name = aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction.function_name
   input = jsonencode({
-    "target_account_id" : data.dome9_awp_aws_get_onboarding_data.dome9_awp_aws_onboarding_data_source.cloud_account_id
+    "target_account_id" : data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.cloud_account_id
   })
+  lifecycle_scope = "CRUD"
+  count                   = local.scan_mode == "inAccount" ? 1 : 0
+  depends_on = [
+    aws_iam_policy_attachment.CloudGuardAWPLambdaExecutionRolePolicyAttachment_InAccount,
+    aws_iam_policy_attachment.CloudGuardAWPLambdaExecutionRolePolicyAttachment_SaaS,
+    aws_cloudwatch_log_group.CloudGuardAWPSnapshotsUtilsLogGroup
+  ]
+}
+
+resource "aws_lambda_invocation" "CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_SaaS" {
+  function_name = aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction.function_name
+  input = jsonencode({
+    "target_account_id" : data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.cloud_account_id
+  })
+  count                   = local.scan_mode == "saas" ? 1 : 0
   lifecycle_scope = "CRUD"
   depends_on = [
     aws_iam_policy_attachment.CloudGuardAWPLambdaExecutionRolePolicyAttachment_InAccount,
@@ -588,6 +614,10 @@ resource "aws_kms_key" "CloudGuardAWPKey" {
       },
     ]
   })
+  tags = {
+    Owner = "CG.AWP"
+    "CG.AL.TF.MODULE_VERSION" = local.awp_module_version
+  }
 }
 #END AWP MR key for snapshot re-encryption
 
@@ -601,7 +631,7 @@ resource "aws_kms_alias" "CloudGuardAWPKeyAlias" {
   ]
 }
 #---# Enable CloudGuard AWP #---#
-resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_test" {
+resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
   cloudguard_account_id          = var.awp_cloud_account_id
   cross_account_role_name        = aws_iam_role.CloudGuardAWPCrossAccountRole.name
   cross_account_role_external_id = local.cross_account_role_external_id
@@ -622,7 +652,8 @@ resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_test" {
     aws_iam_policy_attachment.CloudGuardAWPLambdaExecutionRolePolicyAttachment_SaaS,
     aws_iam_role.CloudGuardAWPCrossAccountRole,
     aws_iam_role_policy_attachment.CloudGuardAWPCrossAccountRoleAttachment,
-    aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation,
+    aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_InAccount,
+    aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_SaaS,
     aws_kms_alias.CloudGuardAWPKeyAlias
 ]
 }

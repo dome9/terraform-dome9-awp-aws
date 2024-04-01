@@ -2,7 +2,7 @@ terraform {
     required_providers {
         dome9 = {
                 source = "dome9/dome9"
-                version = ">=1.29.6"
+                version = ">=1.29.7"
         }
         aws = {
             source  = "hashicorp/aws"
@@ -11,21 +11,40 @@ terraform {
     }
 }
 
+# The Dome9 provider is used to interact with the resources supported by Dome9.
+# The provider needs to be configured with the proper credentials before it can be used.
+# Use the dome9_access_id and dome9_secret_key attributes of the provider to provide the Dome9 access key and secret key.
+# The base_url attribute is used to specify the base URL of the Dome9 API.
+# The Dome9 provider supports several options for providing these credentials. The following example demonstrates the use of static credentials:
+#you can read the Dome9 provider documentation to understand the full set of options available for providing credentials.
+#https://registry.terraform.io/providers/dome9/dome9/latest/docs#authentication
 provider "dome9" {
-    dome9_access_id  = "************"
-    dome9_secret_key = "************"
-    base_url         = "https://api.dome9.com/v2/"
+	dome9_access_id     = "DOME9_ACCESS_ID"
+	dome9_secret_key    = "DOME9_SECRET_KEY"
+	base_url            = "https://api.dome9.com/v2/"
 }
 
+# AWS Provider Configurations
+# The AWS provider is used to interact with the resources supported by AWS.
+# The provider needs to be configured with the proper credentials before it can be used.
+# Use the access_key, secret_key, and token attributes of the provider to provide the credentials.
+# also you can use the shared_credentials_file attribute to provide the path to the shared credentials file.
+# The AWS provider supports several options for providing these credentials. The following example demonstrates the use of static credentials:
+#you can read the AWS provider documentation to understand the full set of options available for providing credentials.
+#https://registry.terraform.io/providers/hashicorp/aws/latest/docs#authentication-and-configuration
 provider "aws" {
-        region = "us-west-2"
-        profile = "default"
+	region     = "AWS_REGION"
+	access_key = "AWS_ACCESS_KEY"
+	secret_key = "AWS_SECRET_KEY"
+	token      = "AWS_SESSION_TOKEN"
 }
 
 locals {
-    dome9_be_account_id = "0123456789" # Dome9 Data Center BackEnd Account ID
-    role_external_trust_secret = "******************"
+    dome9_be_account_id = "CLOUDGUARD_BACKEND_ACCOUNT_ID" # Dome9 Data Center BackEnd Account ID
+    role_external_trust_secret = "CROSS_ACCOUNT_ROLE_EXTERNAL_ID" # External ID for the cross account role trust
 }
+
+# Prerequisite: On board the AWS account to CloudGuard using the Dome9 Cloud Account resource.
 
 resource "aws_iam_role" "cross_account_role" {
     name = "CloudGuard-Connect"
@@ -65,6 +84,7 @@ resource "dome9_cloudaccount_aws" "my_aws_account" {
     }
 }
 
+## AWP Onboarding using the Dome9 AWP AWS module
 
 module "terraform-dome9-awp-aws" {
     source = "dome9/awp/aws" 
