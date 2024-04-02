@@ -642,12 +642,14 @@ resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
   cross_account_role_external_id = local.cross_account_role_external_id
   scan_mode                      = local.scan_mode
 
-
-  agentless_account_settings {
-    disabled_regions                 = var.awp_account_settings_aws.disabled_regions 
-    scan_machine_interval_in_hours   = var.awp_account_settings_aws.scan_machine_interval_in_hours
-    max_concurrent_scans_per_region = var.awp_account_settings_aws.max_concurrent_scans_per_region
-    custom_tags                      = var.awp_account_settings_aws.custom_tags
+  dynamic "agentless_account_settings" {
+    for_each = var.awp_account_settings_aws != null ? [var.awp_account_settings_aws] : []
+    content {
+      disabled_regions                 = agentless_account_settings.value.disabled_regions
+      scan_machine_interval_in_hours   = agentless_account_settings.value.scan_machine_interval_in_hours
+      max_concurrent_scans_per_region = agentless_account_settings.value.max_concurrent_scans_per_region
+      custom_tags                      = agentless_account_settings.value.custom_tags
+    }
   }
 
   depends_on = [
