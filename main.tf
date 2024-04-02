@@ -104,6 +104,11 @@ resource "aws_iam_policy" "CloudGuardAWP" {
         Resource = aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction.arn
       },
       {
+        Effect = "Allow",
+        Action=  "iam:ListRoleTags",
+        Resource = aws_iam_role.CloudGuardAWPCrossAccountRole.arn 
+      },
+      {
         Effect   = "Allow"
         Action   = "cloudformation:DescribeStacks"
         Resource = "arn:${data.aws_partition.current.partition}:cloudformation:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:stack/*"
@@ -630,20 +635,18 @@ resource "aws_kms_alias" "CloudGuardAWPKeyAlias" {
     aws_kms_key.CloudGuardAWPKey
   ]
 }
-#---# Enable CloudGuard AWP #---#
+# #---# Enable CloudGuard AWP #---#
 resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
   cloudguard_account_id          = var.awp_cloud_account_id
   cross_account_role_name        = aws_iam_role.CloudGuardAWPCrossAccountRole.name
   cross_account_role_external_id = local.cross_account_role_external_id
   scan_mode                      = local.scan_mode
 
-  # TODO 
-  # get module version from the module  
 
   agentless_account_settings {
     disabled_regions                 = var.awp_account_settings_aws.disabled_regions 
     scan_machine_interval_in_hours   = var.awp_account_settings_aws.scan_machine_interval_in_hours
-    max_concurrence_scans_per_region = var.awp_account_settings_aws.max_concurrence_scans_per_region
+    max_concurrent_scans_per_region = var.awp_account_settings_aws.max_concurrent_scans_per_region
     custom_tags                      = var.awp_account_settings_aws.custom_tags
   }
 
@@ -655,5 +658,5 @@ resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
     aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_InAccount,
     aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_SaaS,
     aws_kms_alias.CloudGuardAWPKeyAlias
-]
+   ]
 }

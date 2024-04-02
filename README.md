@@ -14,5 +14,5 @@ The following variables are used in this Terraform module:
 - `awp_account_settings_aws` (object): AWS Cloud Account settings. It is an object that can have the following properties:
   - `disabled_regions` (list of strings): List of regions to disable scanning. For example: `["us-east-1", "us-west-2"]`. Default is `null`.
   - `scan_machine_interval_in_hours` (number): Scan machine interval in hours. Default is `null`.
-  - `max_concurrence_scans_per_region` (number): Maximum concurrence scans per region. Default is `null`.
+  - `max_concurrent_scans_per_region` (number): Maximum concurrence scans per region. Default is `null`.
   - `custom_tags` (map of strings): Custom tags to be added to AWP resources. For example: `{"key1" = "value1", "key2" = "value2"}`. Default is `null`.
