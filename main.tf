@@ -22,6 +22,12 @@ locals {
   awp_client_side_security_group_name               = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.awp_client_side_security_group_name
   cross_account_role_external_id                    = var.awp_cross_account_role_external_id != null ? var.awp_cross_account_role_external_id : data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.cross_account_role_external_id
   remote_snapshots_utils_function_s3_pre_signed_url = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.remote_snapshots_utils_function_s3_pre_signed_url
+  
+  common_tags = merge({
+    Owner = "CG.AWP"
+    Terraform = "true"
+    "CG.AL.TF.MODULE_VERSION" = local.awp_module_version
+  }, var.awp_additional_tags != null ? var.awp_additional_tags : {})
 }
 
 # This Terraform file defines the configuration for creating an IAM role that allows CloudGuard access to the AWS account.
@@ -64,10 +70,7 @@ resource "aws_iam_role" "CloudGuardAWPCrossAccountRole" {
     }]
   })
 
-  tags = {
-    Owner = "CG.AWP"
-    "CG.AL.TF.MODULE_VERSION" = local.awp_module_version
-  }
+  tags = local.common_tags 
 
   # The `depends_on` attribute specifies that this IAM role depends on the `aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction` resource.
   depends_on = [aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction]
@@ -81,6 +84,7 @@ resource "aws_iam_role" "CloudGuardAWPCrossAccountRole" {
 resource "aws_iam_policy" "CloudGuardAWP" {
   name        = "CloudGuardAWP"
   description = "Policy for CloudGuard AWP"
+  tags = local.common_tags
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -142,6 +146,7 @@ resource "aws_iam_policy" "CloudGuardAWPCrossAccountRolePolicy_InAccount" {
   count       = local.scan_mode == "inAccount" ? 1 : 0
   name        = "CloudGuardAWPCrossAccountRolePolicy_InAccount"
   description = "Policy for CloudGuard AWP Cross Account Role"
+  tags = local.common_tags
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -268,10 +273,7 @@ resource "aws_lambda_function" "CloudGuardAWPSnapshotsUtilsFunction" {
     }
   }
 
-  tags = {
-    Owner = "CG.AWP"
-    "CG.AL.TF.MODULE_VERSION" = local.awp_module_version
-  }
+  tags = local.common_tags
 }
 
 resource "aws_lambda_permission" "allow_cloudguard" {
@@ -290,10 +292,7 @@ resource "aws_cloudwatch_log_group" "CloudGuardAWPSnapshotsUtilsLogGroup" {
   depends_on = [
     aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction
   ]
-  tags = {
-    Owner = "CG.AWP"
-    "CG.AL.TF.MODULE_VERSION" = local.awp_module_version
-  }
+  tags = local.common_tags
 }
 
 # AWP proxy lambda function role
@@ -313,17 +312,14 @@ resource "aws_iam_role" "CloudGuardAWPSnapshotsUtilsLambdaExecutionRole" {
       }
     ]
   })
-
-  tags = {
-    Owner = "CG.AWP"
-    "CG.AL.TF.MODULE_VERSION" = local.awp_module_version
-  }
+  tags = local.common_tags
 }
 
 # The CloudGuardAWPSnapshotsPolicy resource defines an IAM policy that is used to define the permissions for the CloudGuardAWPSnapshotsUtilsFunction.
 resource "aws_iam_policy" "CloudGuardAWPSnapshotsPolicy" {
   name        = "CloudGuardAWPSnapshotsPolicy"
   description = "Policy for managing snapshots at client side and delete AWP keys"
+  tags = local.common_tags
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -377,6 +373,7 @@ resource "aws_iam_policy" "CloudGuardAWPLambdaExecutionRolePolicy" {
   count       = local.scan_mode == "inAccount" ? 1 : 0
   name        = "CloudGuardAWPLambdaExecutionRolePolicy"
   description = "Policy for CloudGuard AWP Lambda Execution Role"
+  tags = local.common_tags
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -473,7 +470,8 @@ resource "aws_iam_policy" "CloudGuardAWPLambdaExecutionRolePolicy_SaaS" {
   count       = local.scan_mode == "saas" ? 1 : 0
   name        = "CloudGuardAWPLambdaExecutionRolePolicy_SaaS"
   description = "Policy for CloudGuard AWP Lambda Execution Role - SaaS Mode"
-
+  tags = local.common_tags
+  
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -626,10 +624,7 @@ resource "aws_kms_key" "CloudGuardAWPKey" {
       },
     ]
   })
-  tags = {
-    Owner = "CG.AWP"
-    "CG.AL.TF.MODULE_VERSION" = local.awp_module_version
-  }
+  tags = local.common_tags
 }
 #END AWP MR key for snapshot re-encryption
 

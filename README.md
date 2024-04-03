@@ -27,8 +27,13 @@ module "terraform-dome9-awp-aws" {
   awp_scan_mode = "inAccount"
 
   # Optional customizations:
+  # e.g:
   awp_cross_account_role_name        = "<CrossAccountRoleName>"
   awp_cross_account_role_external_id = "<ExternalId>"
+  awp_additional_tags = {
+    "key1" = "value1"
+    "key2" = "value2"
+  }
 
   # Optional account settings
   # e.g:  
@@ -73,6 +78,7 @@ module "terraform-dome9-awp-aws" {
 | <a name="input_awp_scan_mode"></a> [awp_scan_mode](#input\_awp\_scan\_mode) | The scan mode for the AWP `[ "inAccount" \| "saas" ]`| `string` | "inAccount" | yes |
 | <a name="input_awp_cross_account_role_name"></a> [awp_cross_account_role_name](#input\_awp\_cross\_account\_role\_name) | AWP Cross account role name | `string` | `CloudGuardAWPCrossAccountRole` | no |
 | <a name="input_awp_cross_account_role_external_id"></a> [awp_cross_account_role_external_id](#input\_awp\_cross\_account\_role\_external\_id) | AWP Cross account role external id | `string` | `null` (auto-generated) | no |
+| <a name="input_awp_additional_tags"></a> [awp_additional_tags](#input\_awp\_additional\_tags) | Additional tags to be added to the module resources | `map(string)` | `{}` | no |
 |  [awp_account_settings_aws](#input\_awp\_account\_settings\_aws) | AWP Account settings for AWS | object | `null` | no |
 
 <br/>
@@ -82,7 +88,7 @@ module "terraform-dome9-awp-aws" {
 |------|-------------|------|---------|:--------:|:--------:|
 | <a name="input_scan_machine_interval_in_hours"></a> [scan_machine_interval_in_hours](#input\_scan\_machine\_interval\_in\_hours) | Scan machine interval in hours | `number` | `24` | `4` - `1000` | no |
 | <a name="input_max_concurrent_scans_per_region"></a> [max_concurrent_scans_per_region](#input\_max\_concurrent\_scans\_per\_region) | Maximum concurrence scans per region | `number` | `20` | `1` - `20` | no |
-| <a name="input_custom_tags"></a> [custom_tags](#input\_custom\_tags) | Custom tags to be added to AWP resources | `map(string)` | `{}` | `{"key" = "value", ...}` | no |
+| <a name="input_custom_tags"></a> [custom_tags](#input\_custom\_tags) | Custom tags to be added to AWP dynamic resources | `map(string)` | `{}` | `{"key" = "value", ...}` | no |
 | <a name="input_disabled_regions"></a> [disabled_regions](#input\_disabled\_regions) | List of AWS regions to disable AWP scanning | `list(string)` | `[]` | `["us-east-1", ...]`| no |
 
 

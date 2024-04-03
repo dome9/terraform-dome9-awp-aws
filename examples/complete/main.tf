@@ -96,8 +96,12 @@ module "terraform-dome9-awp-aws" {
   awp_scan_mode = "inAccount"
 
   # Optional customizations:
-  awp_cross_account_role_name        = "My-CrossAccount-Role"
-  awp_cross_account_role_external_id = "AWP_Fake@ExternalID123"
+  awp_cross_account_role_name        = "AWPCrossAccountRoleName"
+  awp_cross_account_role_external_id = "EXTERNAL_ID"
+  awp_additional_tags = {
+    "key1" = "value1"
+    "key2" = "value2"
+  }
 
   # Optional account Settings
   # e.g:  

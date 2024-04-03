@@ -22,6 +22,12 @@ variable "awp_cross_account_role_external_id" {
   default = null
 }
 
+variable "awp_additional_tags" {
+  description = "Additional tags to be added to the module resources"
+  type        = map(string)
+  default     = {}
+}
+
 variable "awp_account_settings_aws" {
     description = "AWS Cloud Account settings"
     type        = object({
