@@ -6,15 +6,15 @@ terraform {
     }
     aws = {
       source  = "hashicorp/aws"
-      # version = "5.39.1" # TBD
+      version = ">=5.30.0"
     }
     http = {
       source  = "hashicorp/http"
-      # version = ">=3.4.2" # TBD
+      version = ">=3.4.2"
     }
     local = {
       source  = "hashicorp/local"
-      # version = "2.5.1" # TBD
+      version = "2.5.1"
     }
   }
 }
