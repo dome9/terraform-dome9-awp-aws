@@ -1,5 +1,5 @@
 
-# CloudGuard Dome9 AWP Onboarding (AWS) - Terraform Module
+# CloudGuard AWP (AWS) - Terraform Module
 
 This Terraform module is designed to onboard AWS accounts to Dome9 AWP (Advanced Workload Protection) service.
 (https://www.checkpoint.com/dome9/) 
@@ -67,13 +67,13 @@ module "terraform-dome9-awp-aws" {
 
 ## Inputs
 
-| Name | Description | Type | Default | Valid Values | Required |
-|------|-------------|------|---------|:--------:|:--------:|
-| <a name="input_awp_cloud_account_id"></a> [awp_cloud_account_id](#input\_awp\_cloud\_account\_id) | The Id of the AWS account,onboarded to CloudGuard (can be either the Dome9 Cloud Account ID or the AWS Account Number) | `string` | n/a | n/a  | yes |
-| <a name="input_awp_scan_mode"></a> [awp_scan_mode](#input\_awp\_scan\_mode) | The scan mode for the AWP | `string` | "inAccount" | `"inAccount" \| "saas"` | n/a | yes |
-| <a name="input_awp_cross_account_role_name"></a> [awp_cross_account_role_name](#input\_awp\_cross\_account\_role\_name) | AWP Cross account role name | `string` | `CloudGuardAWPCrossAccountRole` | n/a | no |
-| <a name="input_awp_cross_account_role_external_id"></a> [awp_cross_account_role_external_id](#input\_awp\_cross\_account\_role\_external\_id) | AWP Cross account role external id | `string` | `null` (auto-generated) | n/a | no |
-|  [awp_account_settings_aws](#input\_awp\_account\_settings\_aws) | AWP Account settings for AWS | object | `null` (BE) | n/a | no |
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_awp_cloud_account_id"></a> [awp_cloud_account_id](#input\_awp\_cloud\_account\_id) | The Id of the AWS account, onboarded to CloudGuard (can be either the Dome9 Cloud Account ID or the AWS Account Number) | `string` | n/a | yes |
+| <a name="input_awp_scan_mode"></a> [awp_scan_mode](#input\_awp\_scan\_mode) | The scan mode for the AWP `[ "inAccount" \| "saas" ]`| `string` | "inAccount" | yes |
+| <a name="input_awp_cross_account_role_name"></a> [awp_cross_account_role_name](#input\_awp\_cross\_account\_role\_name) | AWP Cross account role name | `string` | `CloudGuardAWPCrossAccountRole` | no |
+| <a name="input_awp_cross_account_role_external_id"></a> [awp_cross_account_role_external_id](#input\_awp\_cross\_account\_role\_external\_id) | AWP Cross account role external id | `string` | `null` (auto-generated) | no |
+|  [awp_account_settings_aws](#input\_awp\_account\_settings\_aws) | AWP Account settings for AWS | object | `null` | no |
 
 <br/>
 
