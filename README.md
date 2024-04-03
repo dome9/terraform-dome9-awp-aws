@@ -1,18 +1,98 @@
-# Dome9 Terraform Module - AWP Onboarding for AWS
+
+# CloudGuard Dome9 AWP Onboarding (AWS) - Terraform Module
 
 This Terraform module is designed to onboard AWS accounts to Dome9 AWP (Advanced Workload Protection) service.
+(https://www.checkpoint.com/dome9/) 
+
+This module use [Check Point CloudGuard Dome9 Provider](https://registry.terraform.io/providers/dome9/dome9/latest/docs)
+
+## Prerequisites
+
+- AWS Account onboarded to Dome9 CloudGuard
+- Dome9 CloudGuard API Key and Secret (for more info follow: [#Authentication](https://registry.terraform.io/providers/dome9/dome9/latest/docs#authentication))
+- AWS Credentials with permissions to create IAM roles and policies
+
+
 
 ## Usage
 
-## Variables
+```hcl
+module "terraform-dome9-awp-aws" {
+  source = "dome9/awp/aws"
 
-The following variables are used in this Terraform module:
+  # The Id of the AWS account,onboarded to CloudGuard (can be either the Dome9 Cloud Account ID or the AWS Account Number)
+  awp_cloud_account_id = dome9_cloudaccount_aws.my_aws_account.id
 
-- `awp_cross_account_role_name` (string): AWP Cross account role name. Default is `null`.
-- `awp_cross_account_role_external_id` (string): AWP Cross account role external id. Default is `null`.
-- `awp_resource_name_prefix` (string): Resource name prefix. Default is `""` (No prefix).
-- `awp_account_settings_aws` (object): AWS Cloud Account settings. It is an object that can have the following properties:
-  - `disabled_regions` (list of strings): List of regions to disable scanning. For example: `["us-east-1", "us-west-2"]`. Default is `null`.
-  - `scan_machine_interval_in_hours` (number): Scan machine interval in hours. Default is `null`.
-  - `max_concurrent_scans_per_region` (number): Maximum concurrence scans per region. Default is `null`.
-  - `custom_tags` (map of strings): Custom tags to be added to AWP resources. For example: `{"key1" = "value1", "key2" = "value2"}`. Default is `null`.
+  # The scan mode for the AWP. Valid values are "inAccount" or "saas".
+  awp_scan_mode = "inAccount"
+
+  # Optional customizations:
+  awp_cross_account_role_name        = "<CrossAccountRoleName>"
+  awp_cross_account_role_external_id = "<ExternalId>"
+
+  # Optional account settings
+  # e.g:  
+  awp_account_settings_aws = {
+    scan_machine_interval_in_hours  = 24
+    max_concurrent_scans_per_region = 20
+    disabled_regions                = []   # e.g "ap-northeast-1", "ap-northeast-2"]
+    custom_tags                     = {}   # e.g {"key1" = "value1", "key2" = "value2"} 
+  }
+}
+```
+
+## Examples
+[examples](./examples) directory contains example usage of this module.
+ - [basic](./examples/basic) - A basic example of using this module.
+ - [complete](./examples/complete) - A complete example of using this module with all the available options.
+
+## AWP Metadata
+| Version | 7 |
+|------|---------|
+
+
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5 |
+
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.30 |
+| <a name="provider_dome9"></a> [dome9](https://registry.terraform.io/providers/dome9/dome) | >= 1.29.7 |
+
+## Inputs
+
+| Name | Description | Type | Default | Valid Values | Required |
+|------|-------------|------|---------|:--------:|:--------:|
+| <a name="input_awp_cloud_account_id"></a> [awp_cloud_account_id](#input\_awp\_cloud\_account\_id) | The Id of the AWS account,onboarded to CloudGuard (can be either the Dome9 Cloud Account ID or the AWS Account Number) | `string` | n/a | n/a  | yes |
+| <a name="input_awp_scan_mode"></a> [awp_scan_mode](#input\_awp\_scan\_mode) | The scan mode for the AWP | `string` | "inAccount" | `"inAccount" \| "saas"` | n/a | yes |
+| <a name="input_awp_cross_account_role_name"></a> [awp_cross_account_role_name](#input\_awp\_cross\_account\_role\_name) | AWP Cross account role name | `string` | `CloudGuardAWPCrossAccountRole` | n/a | no |
+| <a name="input_awp_cross_account_role_external_id"></a> [awp_cross_account_role_external_id](#input\_awp\_cross\_account\_role\_external\_id) | AWP Cross account role external id | `string` | `null` (auto-generated) | n/a | no |
+|  [awp_account_settings_aws](#input\_awp\_account\_settings\_aws) | AWP Account settings for AWS | object | `null` (BE) | n/a | no |
+
+<br/>
+
+**<a name="input_awp_account_settings_aws"></a> [awp_account_settings_aws](#input\_awp\_account\_settings\_aws) variable is an object that contains the following attributes:**
+| Name | Description | Type | Default | Valid Values |Required |
+|------|-------------|------|---------|:--------:|:--------:|
+| <a name="input_scan_machine_interval_in_hours"></a> [scan_machine_interval_in_hours](#input\_scan\_machine\_interval\_in\_hours) | Scan machine interval in hours | `number` | `24` | `4` - `1000` | no |
+| <a name="input_max_concurrent_scans_per_region"></a> [max_concurrent_scans_per_region](#input\_max\_concurrent\_scans\_per\_region) | Maximum concurrence scans per region | `number` | `20` | `1` - `20` | no |
+| <a name="input_custom_tags"></a> [custom_tags](#input\_custom\_tags) | Custom tags to be added to AWP resources | `map(string)` | `{}` | `{"key" = "value", ...}` | no |
+| <a name="input_disabled_regions"></a> [disabled_regions](#input\_disabled\_regions) | List of AWS regions to disable AWP scanning | `list(string)` | `[]` | `["us-east-1", ...]`| no |
+
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_cloud_account_id"></a> [cloud_account_id](#output\_cloud\_account\_id) | Cloud Guard account ID |
+| <a name="output_agentless_protection_enabled"></a> [agentless_protection_enabled](#output\_agentless\_protection\_enabled) | AWP Status |
+| <a name="output_should_update"></a> [should_update](#output\_should\_update) | This module is out of date and should be updated to the latest version. |
+| <a name="output_awp_cross_account_role_arn"></a> [awp_cross_account_role_arn](#output\_awp\_cross\_account\_role\_arn) | Value of the cross account role arn that AWP assumes to scan the account |
+| <a name="output_missing_awp_private_network_regions"></a> [missing_awp_private_network_regions](#output\_missing\_awp\_private\_network\_regions) | List of regions in which AWP has issue to create virtual private network (VPC) |
+| <a name="output_account_issues"></a> [account_issues](#output\_account\_issues) | Indicates if there are any issues with AWP in the account |
