@@ -30,7 +30,14 @@ locals {
 data "aws_partition" "current" {}
 
 # The `data "aws_region" "current"` block retrieves information about the current AWS region.
-data "aws_region" "current" {}
+data "aws_region" "current" {
+  lifecycle {
+    postcondition {
+      condition = self.name ==  local.region
+      error_message = "Error: AWP must be deployed in the same region as the CloudGuard Data Center: ${local.region} (Not in ${self.name})"
+    }
+  }
+}
 
 # The `data "aws_caller_identity" "current"` block retrieves information about the current AWS caller identity.
 data "aws_caller_identity" "current" {}
