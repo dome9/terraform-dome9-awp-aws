@@ -30,10 +30,8 @@ module "terraform-dome9-awp-aws" {
   # e.g:
   awp_cross_account_role_name        = "<CrossAccountRoleName>"
   awp_cross_account_role_external_id = "<ExternalId>"
-  awp_additional_tags = {
-    "key1" = "value1"
-    "key2" = "value2"
-  }
+  awp_additional_tags                = {}  # e.g {"key1" = "value1", "key2" = "value2"}
+    
 
   # Optional account settings
   # e.g:  
@@ -55,20 +53,24 @@ module "terraform-dome9-awp-aws" {
 | Version | 7 |
 |------|---------|
 
-
+<!-- BEGIN_TF_HEADER_DOCS -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5 |
-
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >=5.30.0 |
+| <a name="requirement_http"></a> [http](#requirement\_http) | >=3.4.2 |
+| <a name="requirement_local"></a> [local](#requirement\_local) | 2.5.1 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.30 |
-| <a name="provider_dome9"></a> [dome9](https://registry.terraform.io/providers/dome9/dome) | >= 1.29.7 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >=5.30.0 |
+| <a name="provider_dome9"></a> [dome9](#provider\_dome9) | n/a |
+| <a name="provider_http"></a> [http](#provider\_http) | >=3.4.2 |
+| <a name="provider_local"></a> [local](#provider\_local) | 2.5.1 |
+<!-- END_TF_HEADER_DOCS -->
 
 ## Inputs
 
@@ -91,14 +93,43 @@ module "terraform-dome9-awp-aws" {
 | <a name="input_custom_tags"></a> [custom_tags](#input\_custom\_tags) | Custom tags to be added to AWP dynamic resources | `map(string)` | `{}` | `{"key" = "value", ...}` | no |
 | <a name="input_disabled_regions"></a> [disabled_regions](#input\_disabled\_regions) | List of AWS regions to disable AWP scanning | `list(string)` | `[]` | `["us-east-1", ...]`| no |
 
+<!-- BEGIN_TF_DOCS -->
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_cloudwatch_log_group.CloudGuardAWPSnapshotsUtilsLogGroup](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
+| [aws_iam_policy.CloudGuardAWP](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.CloudGuardAWPCrossAccountRolePolicy_InAccount](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.CloudGuardAWPCrossAccountRolePolicy_SaaS](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.CloudGuardAWPLambdaExecutionRolePolicy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.CloudGuardAWPLambdaExecutionRolePolicy_SaaS](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.CloudGuardAWPSnapshotsPolicy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy_attachment.CloudGuardAWPCrossAccountRolePolicyAttachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy_attachment) | resource |
+| [aws_iam_policy_attachment.CloudGuardAWPCrossAccountRolePolicyAttachment_SaaS](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy_attachment) | resource |
+| [aws_iam_policy_attachment.CloudGuardAWPLambdaExecutionRolePolicyAttachment_InAccount](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy_attachment) | resource |
+| [aws_iam_policy_attachment.CloudGuardAWPLambdaExecutionRolePolicyAttachment_SaaS](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy_attachment) | resource |
+| [aws_iam_role.CloudGuardAWPCrossAccountRole](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role.CloudGuardAWPSnapshotsUtilsLambdaExecutionRole](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy_attachment.CloudGuardAWPCrossAccountRoleAttachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.CloudGuardAWPSnapshotsUtilsLambdaExecutionRoleAttachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_kms_alias.CloudGuardAWPKeyAlias](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
+| [aws_kms_key.CloudGuardAWPKey](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
+| [aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource |
+| [aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_InAccount](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_invocation) | resource |
+| [aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_SaaS](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_invocation) | resource |
+| [aws_lambda_permission.allow_cloudguard](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
+| [dome9_awp_aws_onboarding.awp_aws_onboarding_resource](https://registry.terraform.io/providers/dome9/dome9/latest/docs/resources/awp_aws_onboarding) | resource |
+| [local_file.CloudGuardAWPSnapshotsUtilsFunctionZip](https://registry.terraform.io/providers/hashicorp/local/2.5.1/docs/resources/file) | resource |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| <a name="output_cloud_account_id"></a> [cloud_account_id](#output\_cloud\_account\_id) | Cloud Guard account ID |
-| <a name="output_agentless_protection_enabled"></a> [agentless_protection_enabled](#output\_agentless\_protection\_enabled) | AWP Status |
-| <a name="output_should_update"></a> [should_update](#output\_should\_update) | This module is out of date and should be updated to the latest version. |
-| <a name="output_awp_cross_account_role_arn"></a> [awp_cross_account_role_arn](#output\_awp\_cross\_account\_role\_arn) | Value of the cross account role arn that AWP assumes to scan the account |
-| <a name="output_missing_awp_private_network_regions"></a> [missing_awp_private_network_regions](#output\_missing\_awp\_private\_network\_regions) | List of regions in which AWP has issue to create virtual private network (VPC) |
-| <a name="output_account_issues"></a> [account_issues](#output\_account\_issues) | Indicates if there are any issues with AWP in the account |
+| <a name="output_account_issues"></a> [account\_issues](#output\_account\_issues) | Indicates if there are any issues with AWP in the account |
+| <a name="output_agentless_protection_enabled"></a> [agentless\_protection\_enabled](#output\_agentless\_protection\_enabled) | AWP Status |
+| <a name="output_awp_cross_account_role_arn"></a> [awp\_cross\_account\_role\_arn](#output\_awp\_cross\_account\_role\_arn) | Value of the cross account role arn that AWP assumes to scan the account |
+| <a name="output_cloud_account_id"></a> [cloud\_account\_id](#output\_cloud\_account\_id) | Cloud Guard account ID |
+| <a name="output_missing_awp_private_network_regions"></a> [missing\_awp\_private\_network\_regions](#output\_missing\_awp\_private\_network\_regions) | List of regions in which AWP has issue to create virtual private network (VPC) |
+| <a name="output_should_update"></a> [should\_update](#output\_should\_update) | This module is out of date and should be updated to the latest version. |
+<!-- END_TF_DOCS -->
