@@ -354,7 +354,7 @@ resource "aws_iam_policy" "CloudGuardAWPSnapshotsPolicy" {
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ]
-        Resource = [aws_cloudwatch_log_group.CloudGuardAWPSnapshotsUtilsLogGroup.arn]
+        Resource = ["${aws_cloudwatch_log_group.CloudGuardAWPSnapshotsUtilsLogGroup.arn}:*"]
       }
     ]
   })
