@@ -110,7 +110,6 @@ module "terraform-dome9-awp-aws" {
 | [aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource |
 | [aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_InAccount](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_invocation) | resource |
 | [aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_SaaS](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_invocation) | resource |
-| [aws_lambda_permission.allow_cloudguard](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
 | [dome9_awp_aws_onboarding.awp_aws_onboarding_resource](https://registry.terraform.io/providers/dome9/dome9/latest/docs/resources/awp_aws_onboarding) | resource |
 | [local_file.CloudGuardAWPSnapshotsUtilsFunctionZip](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
 

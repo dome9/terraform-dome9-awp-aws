@@ -276,13 +276,6 @@ resource "aws_lambda_function" "CloudGuardAWPSnapshotsUtilsFunction" {
   tags = local.common_tags
 }
 
-resource "aws_lambda_permission" "allow_cloudguard" {
-  statement_id  = "AllowExecutionFromCloudGuard"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction.function_name
-  principal     = "s3.amazonaws.com"
-  source_arn    = "arn:${data.aws_partition.current.partition}:s3:::${local.agentless_bucket_name}/*"
-}
 # END AWP proxy lambda function
 
 # CloudGuardAWPSnapshotsUtilsLogGroup : The CloudWatch log group that is used to store the logs of the CloudGuardAWPSnapshotsUtilsFunction.
