@@ -1,7 +1,7 @@
 
 # CloudGuard AWP (AWS) - Terraform Module
 
-This Terraform module is designed to onboard AWS accounts to Dome9 AWP (Advanced Workload Protection) service.
+This Terraform module is designed to onboard AWS accounts to Dome9 AWP (Agentless Workload Posture) service.
 (https://www.checkpoint.com/dome9/) 
 
 This module use [Check Point CloudGuard Dome9 Provider](https://registry.terraform.io/providers/dome9/dome9/latest/docs)
@@ -10,15 +10,14 @@ This module use [Check Point CloudGuard Dome9 Provider](https://registry.terrafo
 
 - AWS Account onboarded to Dome9 CloudGuard
 - Dome9 CloudGuard API Key and Secret (for more info follow: [#Authentication](https://registry.terraform.io/providers/dome9/dome9/latest/docs#authentication))
-- AWS Credentials with permissions to create IAM roles and policies
-
+- AWS Credentials with permissions to create IAM roles and policies ([AWP Documentation](https://sc1.checkpoint.com/documents/CloudGuard_Dome9/Documentation/Workload-Protection/AWP/AWP-Amazon-SaaS-and-In-Account.htm))
 
 
 ## Usage
 
 ```hcl
 module "terraform-dome9-awp-aws" {
-  source = "dome9/awp/aws"
+  source = "dome9/awp-aws/dome9"
 
   # The Id of the AWS account,onboarded to CloudGuard (can be either the Dome9 Cloud Account ID or the AWS Account Number)
   awp_cloud_account_id = dome9_cloudaccount_aws.my_aws_account.id
@@ -38,7 +37,7 @@ module "terraform-dome9-awp-aws" {
   awp_account_settings_aws = {
     scan_machine_interval_in_hours  = 24
     max_concurrent_scans_per_region = 20
-    disabled_regions                = []   # e.g "ap-northeast-1", "ap-northeast-2"]
+    disabled_regions                = []   # e.g ["ap-northeast-1", "ap-northeast-2"]
     custom_tags                     = {}   # e.g {"key1" = "value1", "key2" = "value2"} 
   }
 }
@@ -51,25 +50,18 @@ module "terraform-dome9-awp-aws" {
 
 ## AWP Metadata
 | Version | 7 |
-|------|---------|
+|------|---------| 
 
 <!-- BEGIN_TF_HEADER_DOCS -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >=5.30.0 |
+| <a name="requirement_dome9"></a> [dome9](#requirement\_dome9) | >=1.29.7 |
 | <a name="requirement_http"></a> [http](#requirement\_http) | >=3.4.2 |
-| <a name="requirement_local"></a> [local](#requirement\_local) | 2.5.1 |
-
-## Providers
-
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >=5.30.0 |
-| <a name="provider_dome9"></a> [dome9](#provider\_dome9) | n/a |
-| <a name="provider_http"></a> [http](#provider\_http) | >=3.4.2 |
-| <a name="provider_local"></a> [local](#provider\_local) | 2.5.1 |
+| <a name="requirement_local"></a> [local](#requirement\_local) | >=2.5.1 |
 <!-- END_TF_HEADER_DOCS -->
 
 ## Inputs
@@ -80,7 +72,7 @@ module "terraform-dome9-awp-aws" {
 | <a name="input_awp_scan_mode"></a> [awp_scan_mode](#input\_awp\_scan\_mode) | The scan mode for the AWP `[ "inAccount" \| "saas" ]`| `string` | "inAccount" | yes |
 | <a name="input_awp_cross_account_role_name"></a> [awp_cross_account_role_name](#input\_awp\_cross\_account\_role\_name) | AWP Cross account role name | `string` | `CloudGuardAWPCrossAccountRole` | no |
 | <a name="input_awp_cross_account_role_external_id"></a> [awp_cross_account_role_external_id](#input\_awp\_cross\_account\_role\_external\_id) | AWP Cross account role external id | `string` | `null` (auto-generated) | no |
-| <a name="input_awp_additional_tags"></a> [awp_additional_tags](#input\_awp\_additional\_tags) | Additional tags to be added to the module resources | `map(string)` | `{}` | no |
+| <a name="input_awp_additional_tags"></a> [awp_additional_tags](#input\_awp\_additional\_tags) | Additional tags to be added to all aws resources created by this module  | `map(string)` | `{}` | no |
 |  [awp_account_settings_aws](#input\_awp\_account\_settings\_aws) | AWP Account settings for AWS | object | `null` | no |
 
 <br/>
@@ -89,7 +81,7 @@ module "terraform-dome9-awp-aws" {
 | Name | Description | Type | Default | Valid Values |Required |
 |------|-------------|------|---------|:--------:|:--------:|
 | <a name="input_scan_machine_interval_in_hours"></a> [scan_machine_interval_in_hours](#input\_scan\_machine\_interval\_in\_hours) | Scan machine interval in hours | `number` | `24` | `4` - `1000` | no |
-| <a name="input_max_concurrent_scans_per_region"></a> [max_concurrent_scans_per_region](#input\_max\_concurrent\_scans\_per\_region) | Maximum concurrence scans per region | `number` | `20` | `1` - `20` | no |
+| <a name="input_max_concurrent_scans_per_region"></a> [max_concurrent_scans_per_region](#input\_max\_concurrent\_scans\_per\_region) | Maximum concurrent scans per region | `number` | `20` | `1` - `20` | no |
 | <a name="input_custom_tags"></a> [custom_tags](#input\_custom\_tags) | Custom tags to be added to AWP dynamic resources | `map(string)` | `{}` | `{"key" = "value", ...}` | no |
 | <a name="input_disabled_regions"></a> [disabled_regions](#input\_disabled\_regions) | List of AWS regions to disable AWP scanning | `list(string)` | `[]` | `["us-east-1", ...]`| no |
 
@@ -102,10 +94,10 @@ module "terraform-dome9-awp-aws" {
 | [aws_iam_policy.CloudGuardAWP](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.CloudGuardAWPCrossAccountRolePolicy_InAccount](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.CloudGuardAWPCrossAccountRolePolicy_SaaS](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.CloudGuardAWPLambdaExecutionRolePolicy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.CloudGuardAWPLambdaExecutionRolePolicy_InAccount](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.CloudGuardAWPLambdaExecutionRolePolicy_SaaS](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.CloudGuardAWPSnapshotsPolicy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
-| [aws_iam_policy_attachment.CloudGuardAWPCrossAccountRolePolicyAttachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy_attachment) | resource |
+| [aws_iam_policy_attachment.CloudGuardAWPCrossAccountRolePolicyAttachment_InAccount](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy_attachment) | resource |
 | [aws_iam_policy_attachment.CloudGuardAWPCrossAccountRolePolicyAttachment_SaaS](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy_attachment) | resource |
 | [aws_iam_policy_attachment.CloudGuardAWPLambdaExecutionRolePolicyAttachment_InAccount](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy_attachment) | resource |
 | [aws_iam_policy_attachment.CloudGuardAWPLambdaExecutionRolePolicyAttachment_SaaS](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy_attachment) | resource |
@@ -120,7 +112,7 @@ module "terraform-dome9-awp-aws" {
 | [aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_SaaS](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_invocation) | resource |
 | [aws_lambda_permission.allow_cloudguard](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
 | [dome9_awp_aws_onboarding.awp_aws_onboarding_resource](https://registry.terraform.io/providers/dome9/dome9/latest/docs/resources/awp_aws_onboarding) | resource |
-| [local_file.CloudGuardAWPSnapshotsUtilsFunctionZip](https://registry.terraform.io/providers/hashicorp/local/2.5.1/docs/resources/file) | resource |
+| [local_file.CloudGuardAWPSnapshotsUtilsFunctionZip](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
 
 ## Outputs
 

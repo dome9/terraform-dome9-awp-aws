@@ -145,7 +145,7 @@ resource "aws_iam_role_policy_attachment" "CloudGuardAWPCrossAccountRoleAttachme
 resource "aws_iam_policy" "CloudGuardAWPCrossAccountRolePolicy_InAccount" {
   count       = local.scan_mode == "inAccount" ? 1 : 0
   name        = "CloudGuardAWPCrossAccountRolePolicy_InAccount"
-  description = "Policy for CloudGuard AWP Cross Account Role"
+  description = "Policy for CloudGuard AWP Cross Account Role - InAccount Mode"
   tags = local.common_tags
 
   policy = jsonencode({
@@ -218,10 +218,10 @@ resource "aws_iam_policy" "CloudGuardAWPCrossAccountRolePolicy_SaaS" {
   })
 }
 
-# The CloudGuardAWPCrossAccountRolePolicyAttachment resource attaches the CloudGuardAWPCrossAccountRolePolicy to the CloudGuardAWPCrossAccountRole.
-resource "aws_iam_policy_attachment" "CloudGuardAWPCrossAccountRolePolicyAttachment" {
+# The CloudGuardAWPCrossAccountRolePolicyAttachment_InAccount resource attaches the CloudGuardAWPCrossAccountRolePolicy_InAccount to the CloudGuardAWPCrossAccountRole.
+resource "aws_iam_policy_attachment" "CloudGuardAWPCrossAccountRolePolicyAttachment_InAccount" {
   count      = local.scan_mode == "inAccount" ? 1 : 0
-  name       = "CloudGuardAWPCrossAccountRolePolicyAttachment"
+  name       = "CloudGuardAWPCrossAccountRolePolicyAttachment_InAccount"
   policy_arn = aws_iam_policy.CloudGuardAWPCrossAccountRolePolicy_InAccount[count.index].arn
   roles      = [aws_iam_role.CloudGuardAWPCrossAccountRole.name]
 }
@@ -235,8 +235,8 @@ resource "aws_iam_policy_attachment" "CloudGuardAWPCrossAccountRolePolicyAttachm
 }
 # END Cross account role policy
 
-# The CloudGuardAWPSnapshotsUtilsFunctionZip resource defines http data source to download the remote function file from S3 pre-signed URL.
-data "http" "CloudGuardAWPSnapshotsUtilsFunctionZip" {
+# The DownloadCloudGuardAWPSnapshotsUtilsFunctionZip resource use http data source to download the remote function file from S3 pre-signed URL.
+data "http" "DownloadCloudGuardAWPSnapshotsUtilsFunctionZip" {
   url    = local.remote_snapshots_utils_function_s3_pre_signed_url
   method = "GET"
   request_headers = {
@@ -248,7 +248,7 @@ data "http" "CloudGuardAWPSnapshotsUtilsFunctionZip" {
 # The CloudGuardAWPSnapshotsUtilsFunctionZip resource defines a local file that is used to store the remote function file to be used in the lambda function.
 resource "local_file" "CloudGuardAWPSnapshotsUtilsFunctionZip" {
   filename       = "${local.remote_snapshots_utils_function_name}.zip"
-  content_base64 = data.http.CloudGuardAWPSnapshotsUtilsFunctionZip.response_body_base64
+  content_base64 = data.http.DownloadCloudGuardAWPSnapshotsUtilsFunctionZip.response_body_base64
 }
 
 # AWP proxy lambda function
@@ -368,11 +368,11 @@ resource "aws_iam_role_policy_attachment" "CloudGuardAWPSnapshotsUtilsLambdaExec
 # END AWP proxy lambda function role
 
 # AWP proxy lambda function role policy
-# The CloudGuardAWPLambdaExecutionRolePolicy resource defines an IAM policy that is used to define the permissions for the CloudGuardAWPSnapshotsUtilsFunction.
-resource "aws_iam_policy" "CloudGuardAWPLambdaExecutionRolePolicy" {
+# The CloudGuardAWPLambdaExecutionRolePolicy_InAccount resource defines an IAM policy that is used to define the permissions for the CloudGuardAWPSnapshotsUtilsFunction.
+resource "aws_iam_policy" "CloudGuardAWPLambdaExecutionRolePolicy_InAccount" {
   count       = local.scan_mode == "inAccount" ? 1 : 0
-  name        = "CloudGuardAWPLambdaExecutionRolePolicy"
-  description = "Policy for CloudGuard AWP Lambda Execution Role"
+  name        = "CloudGuardAWPLambdaExecutionRolePolicy_InAccount"
+  description = "Policy for CloudGuard AWP Lambda Execution Role - InAccount Mode"
   tags = local.common_tags
 
   policy = jsonencode({
@@ -516,11 +516,11 @@ resource "aws_iam_policy" "CloudGuardAWPLambdaExecutionRolePolicy_SaaS" {
   })
 }
 
-# The CloudGuardAWPLambdaExecutionRolePolicyAttachment resource attaches the CloudGuardAWPLambdaExecutionRolePolicy to the CloudGuardAWPSnapshotsUtilsLambdaExecutionRole.
+# The CloudGuardAWPLambdaExecutionRolePolicyAttachment resource attaches the CloudGuardAWPLambdaExecutionRolePolicy_InAccount to the CloudGuardAWPSnapshotsUtilsLambdaExecutionRole.
 resource "aws_iam_policy_attachment" "CloudGuardAWPLambdaExecutionRolePolicyAttachment_InAccount" {
   count      = local.scan_mode == "inAccount" ? 1 : 0
   name       = "CloudGuardAWPLambdaExecutionRolePolicyAttachmentInAccount"
-  policy_arn = aws_iam_policy.CloudGuardAWPLambdaExecutionRolePolicy[count.index].arn
+  policy_arn = aws_iam_policy.CloudGuardAWPLambdaExecutionRolePolicy_InAccount[count.index].arn
   roles      = [aws_iam_role.CloudGuardAWPSnapshotsUtilsLambdaExecutionRole.name]
 }
 
@@ -657,6 +657,8 @@ resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
   depends_on = [
     aws_iam_policy_attachment.CloudGuardAWPLambdaExecutionRolePolicyAttachment_InAccount,
     aws_iam_policy_attachment.CloudGuardAWPLambdaExecutionRolePolicyAttachment_SaaS,
+    aws_iam_policy_attachment.CloudGuardAWPCrossAccountRolePolicyAttachment_InAccount,
+    aws_iam_policy_attachment.CloudGuardAWPCrossAccountRolePolicyAttachment_SaaS,
     aws_iam_role.CloudGuardAWPCrossAccountRole,
     aws_iam_role_policy_attachment.CloudGuardAWPCrossAccountRoleAttachment,
     aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_InAccount,

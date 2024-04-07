@@ -1,7 +1,7 @@
 
 # This module block is used to configure the Terraform Dome9 AWP AWS module.
 module "terraform-dome9-awp-aws" {
-    source = "/dome9/awp/aws"
+    source = "dome9/awp-aws/dome9"
 
     # The ID of the Dome9 AWS Cloud Account to associate with the AWP.
     # This can be either the ID of the Dome9 Cloud Account resource or the AWS Account Number.

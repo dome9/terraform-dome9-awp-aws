@@ -1,23 +1,7 @@
-terraform {
-  required_providers {
-    dome9 = {
-      source  = "dome9/dome9"
-      version = ">=1.29.7"
-    }
-    aws = {
-      source  = "hashicorp/aws"
-      version = ">= 3.0"
-    }
-  }
-}
+# 1. Providers Configuration
 
-# The Dome9 provider is used to interact with the resources supported by Dome9.
-# The provider needs to be configured with the proper credentials before it can be used.
-# Use the dome9_access_id and dome9_secret_key attributes of the provider to provide the Dome9 access key and secret key.
-# The base_url attribute is used to specify the base URL of the Dome9 API.
-# The Dome9 provider supports several options for providing these credentials. The following example demonstrates the use of static credentials:
-#you can read the Dome9 provider documentation to understand the full set of options available for providing credentials.
-#https://registry.terraform.io/providers/dome9/dome9/latest/docs#authentication
+# The CloudGuard Dome9 provider is used to interact with the resources supported by Dome9.
+# https://registry.terraform.io/providers/dome9/dome9/latest/docs#authentication
 provider "dome9" {
   dome9_access_id  = "DOME9_ACCESS_ID"
   dome9_secret_key = "DOME9_SECRET_KEY"
@@ -26,13 +10,9 @@ provider "dome9" {
 
 # AWS Provider Configurations
 # The AWS provider is used to interact with the resources supported by AWS.
-# The provider needs to be configured with the proper credentials before it can be used.
-# Use the access_key, secret_key, and token attributes of the provider to provide the credentials.
-# also you can use the shared_credentials_file attribute to provide the path to the shared credentials file.
-# The AWS provider supports several options for providing these credentials. The following example demonstrates the use of static credentials:
-#you can read the AWS provider documentation to understand the full set of options available for providing credentials.
-#https://registry.terraform.io/providers/hashicorp/aws/latest/docs#authentication-and-configuration
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs#authentication-and-configuration
 provider "aws" {
+  # e.g.
   region     = "AWS_REGION"
   access_key = "AWS_ACCESS_KEY"
   secret_key = "AWS_SECRET_KEY"
@@ -44,8 +24,9 @@ locals {
   role_external_trust_secret = "CROSS_ACCOUNT_ROLE_EXTERNAL_ID" # External ID for the cross account role trust
 }
 
-# Prerequisite: On board the AWS account to CloudGuard using the Dome9 Cloud Account resource.
+# 2. Pre-requisite: Onborded AWS Account to CloudGuard Dome9
 
+#e.g: Using role based authentication
 resource "aws_iam_role" "cross_account_role" {
   name = "CloudGuard-Connect"
 
@@ -73,7 +54,7 @@ resource "aws_iam_role" "cross_account_role" {
   ]
 }
 
-
+# https://registry.terraform.io/providers/dome9/dome9/latest/docs/resources/cloudaccount_aws
 resource "dome9_cloudaccount_aws" "my_aws_account" {
   name   = "My AWS Account"
   vendor = "aws"
@@ -84,16 +65,14 @@ resource "dome9_cloudaccount_aws" "my_aws_account" {
   }
 }
 
-## AWP Onboarding using the Dome9 AWP AWS module
+/* ----- Module Usage ----- */
+
+# 3. AWP Onboarding using the Dome9 AWP AWS module
 
 module "terraform-dome9-awp-aws" {
-  source = "dome9/awp/aws"
-
-  # The Id of the AWS account,onboarded to CloudGuard (can be either the Dome9 Cloud Account ID or the AWS Account Number)
-  awp_cloud_account_id = dome9_cloudaccount_aws.my_aws_account.id
-
-  # The scan mode for the AWP. Valid values are "inAccount" or "saas".
-  awp_scan_mode = "inAccount"
+  source               = "dome9/awp-aws/dome9"
+  awp_cloud_account_id = dome9_cloudaccount_aws.my_aws_account.id # [<CLOUDGUARD_ACCOUNT_ID | <AWS_ACCOUNT_ID>]  
+  awp_scan_mode        = "inAccount"                              # [inAccount | saas]  
 
   # Optional customizations:
   awp_cross_account_role_name        = "AWPCrossAccountRoleName"
@@ -107,7 +86,7 @@ module "terraform-dome9-awp-aws" {
   # e.g:  
   awp_account_settings_aws = {
     scan_machine_interval_in_hours  = 24
-    disabled_regions                = ["ap-northeast-1", "ap-northeast-2"]
+    disabled_regions                = [] # e.g ["us-east-1", "us-west-2"]
     max_concurrent_scans_per_region = 20
     custom_tags = {
       tag1 = "value1"
