@@ -19,11 +19,6 @@ provider "aws" {
   token      = "AWS_SESSION_TOKEN"
 }
 
-locals {
-  dome9_be_account_id        = "CLOUDGUARD_BACKEND_ACCOUNT_ID"  # Dome9 Data Center BackEnd Account ID
-  role_external_trust_secret = "CROSS_ACCOUNT_ROLE_EXTERNAL_ID" # External ID for the cross account role trust
-}
-
 # 2. Pre-requisite: Onborded AWS Account to CloudGuard Dome9
 # [!NOTE] If the AWS account is already onboarded, you can skip this step.
 
