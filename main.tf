@@ -185,7 +185,8 @@ resource "aws_iam_policy" "CloudGuardAWPCrossAccountRolePolicy_SaaS" {
   count       = local.scan_mode == "saas" ? 1 : 0
   name        = "CloudGuardAWPCrossAccountRolePolicy_SaaS"
   description = "Policy for CloudGuard AWP Cross Account Role - SaaS Mode"
-
+  tags = local.common_tags
+  
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
