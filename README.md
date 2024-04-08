@@ -9,8 +9,8 @@ This module use [Check Point CloudGuard Dome9 Provider](https://registry.terrafo
 ## Prerequisites
 
 - AWS Account onboarded to Dome9 CloudGuard
-- Dome9 CloudGuard API Key and Secret (for more info follow: [#Authentication](https://registry.terraform.io/providers/dome9/dome9/latest/docs#authentication))
-- AWS Credentials with permissions to create IAM roles and policies ([AWP Documentation](https://sc1.checkpoint.com/documents/CloudGuard_Dome9/Documentation/Workload-Protection/AWP/AWP-Amazon-SaaS-and-In-Account.htm))
+- Dome9 CloudGuard API Key and Secret ([Dome9 Provider Authentication](https://registry.terraform.io/providers/dome9/dome9/latest/docs#authentication))
+- AWS Credentials ([AWS Provider Authentication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs#authentication-and-configuration)) with permissions to create IAM roles and policies (for more info follow: [AWP Documentation](https://sc1.checkpoint.com/documents/CloudGuard_Dome9/Documentation/Workload-Protection/AWP/AWP-Amazon-SaaS-and-In-Account.htm))
 
 
 ## Usage
@@ -47,10 +47,10 @@ module "terraform-dome9-awp-aws" {
 [examples](./examples) directory contains example usage of this module.
  - [basic](./examples/basic) - A basic example of using this module.
  - [complete](./examples/complete) - A complete example of using this module with all the available options.
-
-## AWP Metadata
-| Version | 7 |
-|------|---------| 
+  
+## AWP Terraform template
+| Version | 7    |
+|---------|------| 
 
 <!-- BEGIN_TF_HEADER_DOCS -->
 ## Requirements
@@ -80,7 +80,7 @@ module "terraform-dome9-awp-aws" {
 **<a name="input_awp_account_settings_aws"></a> [awp_account_settings_aws](#input\_awp\_account\_settings\_aws) variable is an object that contains the following attributes:**
 | Name | Description | Type | Default | Valid Values |Required |
 |------|-------------|------|---------|:--------:|:--------:|
-| <a name="input_scan_machine_interval_in_hours"></a> [scan_machine_interval_in_hours](#input\_scan\_machine\_interval\_in\_hours) | Scan machine interval in hours | `number` | `24` | `4` - `1000` | no |
+| <a name="input_scan_machine_interval_in_hours"></a> [scan_machine_interval_in_hours](#input\_scan\_machine\_interval\_in\_hours) | Scan machine interval in hours | `number` | `24` | InAccount: `>=4`, SaaS: `>=24` | no |
 | <a name="input_max_concurrent_scans_per_region"></a> [max_concurrent_scans_per_region](#input\_max\_concurrent\_scans\_per\_region) | Maximum concurrent scans per region | `number` | `20` | `1` - `20` | no |
 | <a name="input_custom_tags"></a> [custom_tags](#input\_custom\_tags) | Custom tags to be added to AWP dynamic resources | `map(string)` | `{}` | `{"key" = "value", ...}` | no |
 | <a name="input_disabled_regions"></a> [disabled_regions](#input\_disabled\_regions) | List of AWS regions to disable AWP scanning | `list(string)` | `[]` | `["us-east-1", ...]`| no |
@@ -124,3 +124,11 @@ module "terraform-dome9-awp-aws" {
 | <a name="output_missing_awp_private_network_regions"></a> [missing\_awp\_private\_network\_regions](#output\_missing\_awp\_private\_network\_regions) | List of regions in which AWP has issue to create virtual private network (VPC) |
 | <a name="output_should_update"></a> [should\_update](#output\_should\_update) | This module is out of date and should be updated to the latest version. |
 <!-- END_TF_DOCS -->
+
+# FAQ & Troubleshooting
+
+> [!IMPORTANT]
+> The warning message **"Warning: Response body is not recognized as UTF-8"** is expected and is a known issue with the `http` provider.
+> This warning occurs because the data-source `data.http.DownloadCloudGuardAWPSnapshotsUtilsFunctionZip` is retrieving a binary file, which may not be encoded in UTF-8 format.
+> As a result, the `http` provider raises this warning. 
+> It does not indicate any error or problem with the functionality of the module.

@@ -25,43 +25,18 @@ locals {
 }
 
 # 2. Pre-requisite: Onborded AWS Account to CloudGuard Dome9
-
-#e.g: Using role based authentication
-resource "aws_iam_role" "cross_account_role" {
-  name = "CloudGuard-Connect"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          AWS = "arn:aws:iam::${local.dome9_be_account_id}:root"
-        }
-        Action = "sts:AssumeRole"
-        Condition = {
-          StringEquals = {
-            "sts:ExternalId" = local.role_external_trust_secret
-          }
-        }
-      }
-    ]
-  })
-
-  managed_policy_arns = [
-    "arn:aws:iam::aws:policy/SecurityAudit",
-    "arn:aws:iam::aws:policy/ReadOnlyAccess"
-  ]
-}
+# [!NOTE] If the AWS account is already onboarded, you can skip this step.
 
 # https://registry.terraform.io/providers/dome9/dome9/latest/docs/resources/cloudaccount_aws
 resource "dome9_cloudaccount_aws" "my_aws_account" {
   name   = "My AWS Account"
   vendor = "aws"
+  
+  # e.g. more details: https://registry.terraform.io/providers/dome9/dome9/latest/docs/resources/cloudaccount_aws#aws_account_id
   credentials {
-    arn    = aws_iam_role.cross_account_role.arn
-    secret = local.role_external_trust_secret
-    type   = "RoleBased"
+    arn    = "<AWS_ROLE_ARN>"
+    secret = "<AWS_ROLE_SECRET>"
+    type   = "RoleBased"         # or UserBase
   }
 }
 
@@ -78,8 +53,8 @@ module "terraform-dome9-awp-aws" {
   awp_cross_account_role_name        = "AWPCrossAccountRoleName"
   awp_cross_account_role_external_id = "EXTERNAL_ID"
   awp_additional_tags = {
-    "key1" = "value1"
-    "key2" = "value2"
+    "tag1" = "value1"
+    "tag2" = "value2"
   }
 
   # Optional account Settings
