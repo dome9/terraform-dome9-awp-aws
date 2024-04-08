@@ -1,0 +1,17 @@
+match_ignores:
+  ignores:
+    - rule_id: SCR_CP001
+      path: /main.tf
+    - rule_id: TFAWS059
+      path: /main.tf
+    - rule_id: CLD024
+      path: /examples/basic/main.tf
+    - rule_id: TFAWS486
+      path: /main.tf
+    - rule_id: TFAWS422
+      path: /main.tf
+    - rule_id: TFAWS197
+      path: /main.tf
+    - rule_id: TFAWS544
+      path: /main.tf
+
