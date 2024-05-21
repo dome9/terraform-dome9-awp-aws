@@ -3,6 +3,17 @@ variable "awp_cloud_account_id" {
     type        = string
 }
 
+variable "awp_hub_external_account_id" { # TODO should it be: terraform -var awp_hub_external_account_id=...?
+    description = "EXTERNAL_AWS_ACCOUNT_NUMBER of the centralized account"
+    type        = string
+}
+
+variable "awp_organization_id" {
+    description = "The AWS organization id in case of centralized account"
+    type        = string
+    default     = ""
+}
+
 variable "awp_scan_mode" {
     description = "AWP scan mode <inAccount|saas>" # the valid values are "inAccount" and "saas" when onboarding the AWS account to Dome9 AWP.
     type        = string
