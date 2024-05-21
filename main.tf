@@ -810,14 +810,11 @@ resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
   }
 
   depends_on = [
-    aws_iam_policy_attachment.CloudGuardAWPLambdaExecutionRolePolicyAttachment_InAccount,
-    aws_iam_policy_attachment.CloudGuardAWPLambdaExecutionRolePolicyAttachment_SaaS,
-    aws_iam_policy_attachment.CloudGuardAWPCrossAccountRolePolicyAttachment_InAccount,
-    aws_iam_policy_attachment.CloudGuardAWPCrossAccountRolePolicyAttachment_SaaS,
+    aws_iam_policy_attachment.CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicyAttachment,
+    aws_iam_policy_attachment.CloudGuardAWPCrossAccountRolePolicyAttachment,
     aws_iam_role.CloudGuardAWPCrossAccountRole,
-    aws_iam_role_policy_attachment.CloudGuardAWPCrossAccountRoleAttachment,
-    aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_InAccount,
-    aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_SaaS,
+    aws_iam_role_policy_attachment.CloudGuardAWPCrossAccountRolePolicyAttachment,
+    # aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation, # TODO add this invocation resource
     aws_kms_alias.CloudGuardAWPKeyAlias
   ]
 }
