@@ -813,7 +813,6 @@ resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
     aws_iam_policy_attachment.CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicyAttachment,
     aws_iam_policy_attachment.CloudGuardAWPCrossAccountRolePolicyAttachment,
     aws_iam_role.CloudGuardAWPCrossAccountRole,
-    aws_iam_role_policy_attachment.CloudGuardAWPCrossAccountRolePolicyAttachment,
     # aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation, # TODO add this invocation resource
     aws_kms_alias.CloudGuardAWPKeyAlias
   ]
