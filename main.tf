@@ -24,17 +24,17 @@ locals {
   remote_snapshots_utils_function_s3_pre_signed_url = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.remote_snapshots_utils_function_s3_pre_signed_url
 
   is_in_account_hub_scan_mode_condition = local.scan_mode == "centralized" && var.awp_hub_external_account_id == data.dome9_cloudaccount_aws.cloud_account.external_account_number
-  is_scanner_mode_condition = local.scan_mode == "centralized" || local.is_in_account_hub_scan_mode_condition
-  is_scanned_mode_condition = !local.is_in_account_hub_scan_mode_condition
+  is_scanner_mode_condition             = local.scan_mode == "centralized" || local.is_in_account_hub_scan_mode_condition
+  is_scanned_mode_condition             = !local.is_in_account_hub_scan_mode_condition
   is_in_account_sub_scan_mode_condition = local.scan_mode == "centralized" && var.awp_hub_external_account_id != data.dome9_cloudaccount_aws.cloud_account.external_account_number
-  is_proxy_lambda_required_condition = !local.is_in_account_sub_scan_mode_condition
-  is_saas_scan_mode = local.scan_mode == "saas"
-  is_hosting_key_condition = local.is_in_account_hub_scan_mode_condition || local.is_saas_scan_mode
-  is_reencrypt_required_condition = local.is_saas_scan_mode || local.is_in_account_sub_scan_mode_condition
-  
+  is_proxy_lambda_required_condition    = !local.is_in_account_sub_scan_mode_condition
+  is_saas_scan_mode                     = local.scan_mode == "saas"
+  is_hosting_key_condition              = local.is_in_account_hub_scan_mode_condition || local.is_saas_scan_mode
+  is_reencrypt_required_condition       = local.is_saas_scan_mode || local.is_in_account_sub_scan_mode_condition
+
   common_tags = merge({
-    Owner = "CG.AWP"
-    Terraform = "true"
+    Owner                     = "CG.AWP"
+    Terraform                 = "true"
     "CG.AL.TF.MODULE_VERSION" = local.awp_module_version
   }, var.awp_additional_tags != null ? var.awp_additional_tags : {})
 }
@@ -48,7 +48,7 @@ data "aws_partition" "current" {}
 data "aws_region" "current" {
   lifecycle {
     postcondition {
-      condition = self.name ==  local.region
+      condition     = self.name == local.region
       error_message = "Error: AWP must be deployed in the same region as the CloudGuard Data Center: ${local.region} (Not in ${self.name})"
     }
   }
@@ -120,8 +120,8 @@ resource "aws_iam_policy_attachment" "CloudGuardAWPReaderPolicyAttachment" {
 
 # This policy provides the proxy lambda the permissions to create and teardown VPC setup
 resource "aws_iam_policy" "CloudGuardAWPVpcManagementPolicy" {
-  count      = local.is_scanner_mode_condition ? 1 : 0
-  name       = "CloudGuardAWPVpcManagementPolicy"
+  count = local.is_scanner_mode_condition ? 1 : 0
+  name  = "CloudGuardAWPVpcManagementPolicy"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -147,18 +147,18 @@ resource "aws_iam_policy" "CloudGuardAWPVpcManagementPolicy" {
       {
         Effect = "Allow"
         Action = [
-              "ec2:ModifySubnetAttribute",
-              "ec2:AssociateRouteTable",
-              "ec2:DeleteVpc",
-              "ec2:DeleteSubnet",
-              "ec2:DeleteVolume",
-              "ec2:DeleteInternetGateway",
-              "ec2:RevokeSecurityGroupEgress",
-              "ec2:RevokeSecurityGroupIngress",
-              "ec2:AuthorizeSecurityGroupEgress",
-              "ec2:DeleteSecurityGroup",
-              "ec2:DeleteVpcEndpoints",
-              "ec2:CreateNetworkAclEntry"
+          "ec2:ModifySubnetAttribute",
+          "ec2:AssociateRouteTable",
+          "ec2:DeleteVpc",
+          "ec2:DeleteSubnet",
+          "ec2:DeleteVolume",
+          "ec2:DeleteInternetGateway",
+          "ec2:RevokeSecurityGroupEgress",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:DeleteSecurityGroup",
+          "ec2:DeleteVpcEndpoints",
+          "ec2:CreateNetworkAclEntry"
         ]
         Resource = "*"
         Condition = {
@@ -203,8 +203,8 @@ resource "aws_iam_policy" "CloudGuardAWPProxyLambdaManagementPolicy" {
         Resource = aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction[count.index].arn
       },
       {
-        Effect = "Allow"
-        Action = "s3:GetObject"
+        Effect   = "Allow"
+        Action   = "s3:GetObject"
         Resource = "arn:${data.aws_partition.current.partition}:s3:::${local.agentless_bucket_name}/${local.remote_functions_prefix_key}*"
       }
     ]
@@ -221,8 +221,8 @@ resource "aws_iam_policy_attachment" "CloudGuardAWPProxyLambdaManagementPolicyAt
 
 # This policy provides the cross-account-role permissions manage securit-group in case using client's default VPC
 resource "aws_iam_policy" "CloudGuardAWPSecurityGroupManagementPolicy" {
-  count      = local.is_scanner_mode_condition ? 1 : 0
-  name       = "CloudGuardAWPSecurityGroupManagementPolicy"
+  count = local.is_scanner_mode_condition ? 1 : 0
+  name  = "CloudGuardAWPSecurityGroupManagementPolicy"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -272,8 +272,8 @@ resource "aws_iam_policy_attachment" "CloudGuardAWPSecurityGroupManagementPolicy
 
 # This policy provides the AWP role the permissions to handle snapshots creation for the scanned machines
 resource "aws_iam_policy" "CloudGuardAWPSnapshotsPolicy" {
-  count      = local.is_scanned_mode_condition ? 1 : 0
-  name       = "CloudGuardAWPSnapshotsPolicy"
+  count = local.is_scanned_mode_condition ? 1 : 0
+  name  = "CloudGuardAWPSnapshotsPolicy"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -293,7 +293,7 @@ resource "aws_iam_policy" "CloudGuardAWPSnapshotsPolicy" {
           "ec2:CopySnapshot",
           "ec2:CreateTags"
         ]
-        Resource: "arn:aws:ec2:*::snapshot/*"
+        Resource : "arn:aws:ec2:*::snapshot/*"
       },
       {
         Effect = "Allow"
@@ -322,8 +322,8 @@ resource "aws_iam_policy_attachment" "CloudGuardAWPSnapshotsPolicyAttachment" {
 
 # This policy provides the AWP proxy lambda with the permissions to manage AWP scanners
 resource "aws_iam_policy" "CloudGuardAWPScannersPolicy" {
-  count      = local.is_scanner_mode_condition ? 1 : 0
-  name       = "CloudGuardAWPScannersPolicy"
+  count = local.is_scanner_mode_condition ? 1 : 0
+  name  = "CloudGuardAWPScannersPolicy"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -356,7 +356,7 @@ resource "aws_iam_policy" "CloudGuardAWPScannersPolicy" {
         Action = [
           "iam:CreateServiceLinkedRole"
         ]
-        Resource: "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/spot.amazonaws.com/AWSServiceRoleForEC2Spot"
+        Resource : "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/spot.amazonaws.com/AWSServiceRoleForEC2Spot"
       }
     ]
   })
@@ -372,8 +372,8 @@ resource "aws_iam_policy_attachment" "CloudGuardAWPScannersPolicyAttachment" {
 
 # This policy provides the AWP proxy lambda with the permissions to use the AWP key in case scanner attached with a re-encrypted snapshot
 resource "aws_iam_policy" "CloudGuardAWPKeyUsagePolicy" {
-  count      = local.is_scanner_mode_condition ? 1 : 0
-  name       = "CloudGuardAWPKeyUsagePolicy"
+  count = local.is_scanner_mode_condition ? 1 : 0
+  name  = "CloudGuardAWPKeyUsagePolicy"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -401,8 +401,8 @@ resource "aws_iam_policy_attachment" "CloudGuardAWPKeyUsagePolicyAttachment" {
 
 # This policy provides the cross-account-role with the permissions to replicate the AWP key to another region
 resource "aws_iam_policy" "CloudGuardAWPKeyReplicationPolicy" {
-  count      = local.is_hosting_key_condition ? 1 : 0
-  name       = "CloudGuardAWPKeyReplicationPolicy"
+  count = local.is_hosting_key_condition ? 1 : 0
+  name  = "CloudGuardAWPKeyReplicationPolicy"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -446,16 +446,16 @@ resource "aws_iam_policy_attachment" "CloudGuardAWPKeyReplicationPolicyAttachmen
   count      = local.is_hosting_key_condition ? 1 : 0
   name       = "CloudGuardAWPKeyReplicationPolicyAttachment"
   policy_arn = aws_iam_policy.CloudGuardAWPKeyReplicationPolicy[count.index].arn
-  roles      = [
+  roles = [
     aws_iam_role.CloudGuardAWPCrossAccountRole.name,
     aws_iam_role.CloudGuardAWPSnapshotsUtilsLambdaExecutionRole.name
-    ]
+  ]
 }
 
 # This policy provides the AWP role the permissions to handle re-encrypt encrypted snapshots to the AWP key
 resource "aws_iam_policy" "CloudGuardAWPReEncryptionPolicy" {
-  count      = local.is_reencrypt_required_condition ? 1 : 0
-  name       = "CloudGuardAWPReEncryptionPolicy"
+  count = local.is_reencrypt_required_condition ? 1 : 0
+  name  = "CloudGuardAWPReEncryptionPolicy"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -463,20 +463,20 @@ resource "aws_iam_policy" "CloudGuardAWPReEncryptionPolicy" {
       {
         Effect = "Allow"
         Action = [
-              "kms:CreateGrant",
-              "kms:ReEncryptTo",
-              "kms:RevokeGrant",
-              "kms:DescribeKey"
+          "kms:CreateGrant",
+          "kms:ReEncryptTo",
+          "kms:RevokeGrant",
+          "kms:DescribeKey"
         ]
         Resource = local.is_saas_scan_mode ? aws_kms_key.CloudGuardAWPKey[count.index].arn : "arn:${data.aws_partition.current.partition}:kms:*:${var.awp_hub_external_account_id}:alias/CloudGuardAWPKey" // TODO var.awp_hub_external_account_id --> how it filled?
       },
       {
         Effect = "Allow"
         Action = [
-              "kms:DescribeKey",
-              "kms:CreateGrant",
-              "kms:ReEncryptFrom",
-              "kms:GenerateDataKey*"
+          "kms:DescribeKey",
+          "kms:CreateGrant",
+          "kms:ReEncryptFrom",
+          "kms:GenerateDataKey*"
         ]
         Resource = "*"
       }
@@ -524,7 +524,7 @@ resource "aws_iam_role" "CloudGuardAWPCrossAccountRole" {
 resource "aws_iam_policy" "CloudGuardAWPCrossAccountRolePolicy" {
   name        = "CloudGuardAWPCrossAccountRolePolicy"
   description = "Policy for CloudGuardAWPCrossAccountRole"
-  tags = local.common_tags
+  tags        = local.common_tags
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -538,12 +538,12 @@ resource "aws_iam_policy" "CloudGuardAWPCrossAccountRolePolicy" {
       },
       {
         Effect   = "Allow"
-        Action   = local.is_in_account_sub_scan_mode_condition ? [ "iam:GetRole" ] : [ "cloudformation:DescribeStacks" ]
+        Action   = local.is_in_account_sub_scan_mode_condition ? ["iam:GetRole"] : ["cloudformation:DescribeStacks"]
         Resource = local.is_in_account_sub_scan_mode_condition ? aws_iam_role.CloudGuardAWPOperatorRole.arn : "arn:${data.aws_partition.current.partition}:cloudformation:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:stack/*"
       },
       {
-        Effect = "Allow",
-        Action=  "iam:ListRoleTags",
+        Effect   = "Allow",
+        Action   = "iam:ListRoleTags",
         Resource = "arn:${data.aws_partition.current.partition}:iam::*:role/${aws_iam_role.CloudGuardAWPCrossAccountRole.name}"
       }
     ]
@@ -581,7 +581,7 @@ resource "aws_iam_policy" "CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicy"
   count       = local.is_proxy_lambda_required_condition ? 1 : 0
   name        = "CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicy"
   description = "Policy for managing snapshots at client side and delete AWP KMS keys"
-  tags = local.common_tags
+  tags        = local.common_tags
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -602,8 +602,8 @@ resource "aws_iam_policy" "CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicy"
         Resource = "*"
       },
       {
-        Effect = "Allow"
-        Action = local.is_in_account_hub_scan_mode_condition ? [ "sts:AssumeRole" ] : [ "ec2:CreateTags" ]
+        Effect   = "Allow"
+        Action   = local.is_in_account_hub_scan_mode_condition ? ["sts:AssumeRole"] : ["ec2:CreateTags"]
         Resource = local.is_in_account_hub_scan_mode_condition ? "arn:${data.aws_partition.current.partition}:iam::*:role/${aws_iam_role.CloudGuardAWPOperatorRole.name}" : "*"
       }
     ]
@@ -653,7 +653,7 @@ data "http" "DownloadCloudGuardAWPSnapshotsUtilsFunctionZip" {
   url    = local.remote_snapshots_utils_function_s3_pre_signed_url
   method = "GET"
   request_headers = {
-    Accept = "application/zip"
+    Accept        = "application/zip"
     Accept-Ranges = "bytes"
   }
 }
@@ -690,12 +690,12 @@ resource "aws_lambda_function" "CloudGuardAWPSnapshotsUtilsFunction" {
   }
 
   tags = merge({
-    ConditionalDependsOnVpcManagementPolicy = local.is_scanner_mode_condition ? aws_iam_policy.CloudGuardAWPVpcManagementPolicy[count.index].name : ""
-    ConditionalDependsOnSnapshotsPolicy = local.is_scanned_mode_condition ? aws_iam_policy.CloudGuardAWPSnapshotsPolicy[count.index].name : ""
-    ConditionalDependsOnScannersPolicy = local.is_scanner_mode_condition ? aws_iam_policy.CloudGuardAWPScannersPolicy[count.index].name : ""
+    ConditionalDependsOnVpcManagementPolicy  = local.is_scanner_mode_condition ? aws_iam_policy.CloudGuardAWPVpcManagementPolicy[count.index].name : ""
+    ConditionalDependsOnSnapshotsPolicy      = local.is_scanned_mode_condition ? aws_iam_policy.CloudGuardAWPSnapshotsPolicy[count.index].name : ""
+    ConditionalDependsOnScannersPolicy       = local.is_scanner_mode_condition ? aws_iam_policy.CloudGuardAWPScannersPolicy[count.index].name : ""
     ConditionalDependsOnKeyReplicationPolicy = local.is_hosting_key_condition ? aws_iam_policy.CloudGuardAWPKeyReplicationPolicy[count.index].name : ""
-    Terraform = "true"
-    "CG.AL.TF.MODULE_VERSION" = local.awp_module_version
+    Terraform                                = "true"
+    "CG.AL.TF.MODULE_VERSION"                = local.awp_module_version
   }, local.common_tags)
 }
 
@@ -749,9 +749,9 @@ resource "aws_kms_key" "CloudGuardAWPKey" {
         Resource = "*"
       },
       {
-        Sid    = local.is_saas_scan_mode ?  "Allow re-encryption to this key by AWP BE" : "Allow re encryption to this key by all Sub accounts in the organization"
+        Sid    = local.is_saas_scan_mode ? "Allow re-encryption to this key by AWP BE" : "Allow re encryption to this key by all Sub accounts in the organization"
         Effect = "Allow"
-        Principal = { 
+        Principal = {
           AWS = local.is_saas_scan_mode ? "arn:${data.aws_partition.current.partition}:iam::${local.cloud_guard_backend_account_id}:root" : "*"
         }
         Action = [
@@ -759,13 +759,13 @@ resource "aws_kms_key" "CloudGuardAWPKey" {
           "kms:ReEncryptTo",
           "kms:GenerateDataKey*"
         ]
-        Resource = "*"
-        Condition = local.is_saas_scan_mode ? {} : { StringEquals = { "aws:PrincipalOrgId" = var.awp_organization_id }}
+        Resource  = "*"
+        Condition = local.is_saas_scan_mode ? {} : { StringEquals = { "aws:PrincipalOrgId" = var.awp_organization_id } }
       },
       {
-        Sid    = local.is_saas_scan_mode ?  "Allow attachment of persistent resources" : "Allow attachment of persistent resources for all sub accounts in the organization"
+        Sid    = local.is_saas_scan_mode ? "Allow attachment of persistent resources" : "Allow attachment of persistent resources for all sub accounts in the organization"
         Effect = "Allow"
-        Principal = { 
+        Principal = {
           AWS = local.is_saas_scan_mode ? "arn:${data.aws_partition.current.partition}:iam::${local.cloud_guard_backend_account_id}:root" : "*"
         }
         Action = [
@@ -773,8 +773,8 @@ resource "aws_kms_key" "CloudGuardAWPKey" {
           "kms:ListGrants",
           "kms:RevokeGrant"
         ]
-        Resource = "*"
-        Condition = local.is_saas_scan_mode ? { Bool = { "kms:GrantIsForAWSResource" = true }} : { StringEquals = { "aws:PrincipalOrgId" = var.awp_organization_id }}
+        Resource  = "*"
+        Condition = local.is_saas_scan_mode ? { Bool = { "kms:GrantIsForAWSResource" = true } } : { StringEquals = { "aws:PrincipalOrgId" = var.awp_organization_id } }
       }
     ]
   })
@@ -791,7 +791,7 @@ resource "aws_kms_alias" "CloudGuardAWPKeyAlias" {
   ]
 }
 
-# TODO need the following?
+# TODO any update here?
 # ----- Enable CloudGuard AWP AWS Onboarding -----
 resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
   cloudguard_account_id          = var.awp_cloud_account_id
@@ -802,10 +802,10 @@ resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
   dynamic "agentless_account_settings" {
     for_each = var.awp_account_settings_aws != null ? [var.awp_account_settings_aws] : []
     content {
-      disabled_regions                 = agentless_account_settings.value.disabled_regions
-      scan_machine_interval_in_hours   = agentless_account_settings.value.scan_machine_interval_in_hours
+      disabled_regions                = agentless_account_settings.value.disabled_regions
+      scan_machine_interval_in_hours  = agentless_account_settings.value.scan_machine_interval_in_hours
       max_concurrent_scans_per_region = agentless_account_settings.value.max_concurrent_scans_per_region
-      custom_tags                      = agentless_account_settings.value.custom_tags
+      custom_tags                     = agentless_account_settings.value.custom_tags
     }
   }
 
@@ -819,5 +819,5 @@ resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
     aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_InAccount,
     aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_SaaS,
     aws_kms_alias.CloudGuardAWPKeyAlias
-   ]
+  ]
 }
