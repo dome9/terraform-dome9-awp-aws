@@ -23,10 +23,10 @@ locals {
   cross_account_role_external_id                    = var.awp_cross_account_role_external_id != null ? var.awp_cross_account_role_external_id : data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.cross_account_role_external_id
   remote_snapshots_utils_function_s3_pre_signed_url = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.remote_snapshots_utils_function_s3_pre_signed_url
 
-  is_in_account_hub_scan_mode_condition = local.scan_mode == "centralized" && var.awp_hub_external_account_id == data.dome9_cloudaccount_aws.cloud_account.external_account_number
-  is_scanner_mode_condition             = local.scan_mode == "centralized" || local.is_in_account_hub_scan_mode_condition
+  is_in_account_hub_scan_mode_condition = local.scan_mode == "inAccountHub" && var.awp_hub_external_account_id == data.dome9_cloudaccount_aws.cloud_account.external_account_number
+  is_scanner_mode_condition             = local.scan_mode == "inAccountHub" || local.is_in_account_hub_scan_mode_condition
   is_scanned_mode_condition             = !local.is_in_account_hub_scan_mode_condition
-  is_in_account_sub_scan_mode_condition = local.scan_mode == "centralized" && var.awp_hub_external_account_id != data.dome9_cloudaccount_aws.cloud_account.external_account_number
+  is_in_account_sub_scan_mode_condition = local.scan_mode == "inAccountHub" && var.awp_hub_external_account_id != data.dome9_cloudaccount_aws.cloud_account.external_account_number
   is_proxy_lambda_required_condition    = !local.is_in_account_sub_scan_mode_condition
   is_saas_scan_mode                     = local.scan_mode == "saas"
   is_hosting_key_condition              = local.is_in_account_hub_scan_mode_condition || local.is_saas_scan_mode
