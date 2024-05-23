@@ -24,7 +24,7 @@ locals {
   remote_snapshots_utils_function_s3_pre_signed_url = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.remote_snapshots_utils_function_s3_pre_signed_url
 
   is_saas_scan_mode                     = local.scan_mode == "saas"
-  is_in_account_scan_mode                = local.scan_mode == "inAccount"
+  is_in_account_scan_mode               = local.scan_mode == "inAccount"
   is_in_account_hub_scan_mode_condition = local.scan_mode == "inAccountHub"
   is_in_account_sub_scan_mode_condition = local.scan_mode == "inAccountSub"
   is_scanner_mode_condition             = local.is_in_account_scan_mode || local.is_in_account_hub_scan_mode_condition
@@ -797,7 +797,7 @@ resource "aws_kms_alias" "CloudGuardAWPKeyAlias" {
 resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
   cloudguard_account_id          = var.awp_cloud_account_id
   cross_account_role_name        = aws_iam_role.CloudGuardAWPCrossAccountRole.name
-  cloudguard_hub_account_id      = var.awp_hub_external_account_id
+  awp_hub_external_account_id    = var.awp_hub_external_account_id
   cross_account_role_external_id = local.cross_account_role_external_id
   scan_mode                      = local.scan_mode
 

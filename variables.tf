@@ -6,7 +6,6 @@ variable "awp_cloud_account_id" {
 variable "awp_hub_external_account_id" { # TODO should it be: terraform -var awp_hub_external_account_id=...?
   description = "EXTERNAL_AWS_ACCOUNT_NUMBER of the centralized account"
   type        = string
-  # default = "048732273223" # TODO TMP remove (dev purposes)
 }
 
 variable "awp_organization_id" {
