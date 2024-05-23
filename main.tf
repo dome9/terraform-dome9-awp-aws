@@ -796,6 +796,7 @@ resource "aws_kms_alias" "CloudGuardAWPKeyAlias" {
 resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
   cloudguard_account_id          = var.awp_cloud_account_id
   cross_account_role_name        = aws_iam_role.CloudGuardAWPCrossAccountRole.name
+  cloudguard_hub_account_id      = var.awp_hub_external_account_id
   cross_account_role_external_id = local.cross_account_role_external_id
   scan_mode                      = local.scan_mode
 
