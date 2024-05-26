@@ -318,7 +318,7 @@ resource "aws_iam_policy_attachment" "CloudGuardAWPSnapshotsPolicyAttachment" {
   count      = local.is_scanned_mode_condition ? 1 : 0
   name       = "CloudGuardAWPSnapshotsPolicyAttachment"
   policy_arn = aws_iam_policy.CloudGuardAWPSnapshotsPolicy[count.index].arn
-  roles      = local.is_in_account_sub_scan_mode_condition ? [aws_iam_role.CloudGuardAWPOperatorRole.name] : [aws_iam_role.CloudGuardAWPSnapshotsUtilsLambdaExecutionRole.name]
+  roles      = local.is_in_account_sub_scan_mode_condition ? [aws_iam_role.CloudGuardAWPOperatorRole[0].name] : [aws_iam_role.CloudGuardAWPSnapshotsUtilsLambdaExecutionRole.name]
 }
 
 # This policy provides the AWP proxy lambda with the permissions to manage AWP scanners
@@ -490,7 +490,7 @@ resource "aws_iam_policy_attachment" "CloudGuardAWPReEncryptionPolicyAttachment"
   count      = local.is_reencrypt_required_condition ? 1 : 0
   name       = "CloudGuardAWPReEncryptionPolicyAttachment"
   policy_arn = aws_iam_policy.CloudGuardAWPReEncryptionPolicy[count.index].arn
-  roles      = local.is_saas_scan_mode ? [aws_iam_role.CloudGuardAWPSnapshotsUtilsLambdaExecutionRole.name] : [aws_iam_role.CloudGuardAWPOperatorRole.name]
+  roles      = local.is_saas_scan_mode ? [aws_iam_role.CloudGuardAWPSnapshotsUtilsLambdaExecutionRole.name] : [aws_iam_role.CloudGuardAWPOperatorRole[0].name]
 }
 
 # The `resource "aws_iam_role" "CloudGuardAWPCrossAccountRole"` block defines an IAM role that is used to allow CloudGuard AWP to access the AWS account.
@@ -554,8 +554,9 @@ resource "aws_iam_policy" "CloudGuardAWPCrossAccountRolePolicy" {
 
 # Policy attachment for 'CloudGuardAWPCrossAccountRolePolicy'
 resource "aws_iam_policy_attachment" "CloudGuardAWPCrossAccountRolePolicyAttachment" {
+  count      = 1
   name       = "CloudGuardAWPCrossAccountRolePolicyAttachment"
-  policy_arn = aws_iam_policy.CloudGuardAWPCrossAccountRolePolicy.arn
+  policy_arn = aws_iam_policy.CloudGuardAWPCrossAccountRolePolicy[0].arn
   roles      = [aws_iam_role.CloudGuardAWPCrossAccountRole.name]
 }
 
@@ -606,7 +607,7 @@ resource "aws_iam_policy" "CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicy"
       {
         Effect   = "Allow"
         Action   = local.is_in_account_hub_scan_mode_condition ? ["sts:AssumeRole"] : ["ec2:CreateTags"]
-        Resource = local.is_in_account_hub_scan_mode_condition ? "arn:${data.aws_partition.current.partition}:iam::*:role/${aws_iam_role.CloudGuardAWPOperatorRole.name}" : "*"
+        Resource = local.is_in_account_hub_scan_mode_condition ? "arn:${data.aws_partition.current.partition}:iam::*:role/${aws_iam_role.CloudGuardAWPOperatorRole[0].name}" : "*"
       }
     ]
   })
