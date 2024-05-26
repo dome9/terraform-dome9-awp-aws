@@ -523,7 +523,7 @@ resource "aws_iam_role" "CloudGuardAWPCrossAccountRole" {
 
 # The CloudGuardAWPCrossAccountRolePolicy resource defines an IAM policy that is used to define the permissions for the CloudGuardAWPCrossAccountRole.
 resource "aws_iam_policy" "CloudGuardAWPCrossAccountRolePolicy" {
-  count       = 1 
+  count       = 1
   name        = "CloudGuardAWPCrossAccountRolePolicy"
   description = "Policy for CloudGuardAWPCrossAccountRole"
   tags        = local.common_tags
