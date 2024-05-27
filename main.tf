@@ -795,7 +795,6 @@ resource "aws_kms_alias" "CloudGuardAWPKeyAlias" {
   ]
 }
 
-# TODO update
 # ----- Enable CloudGuard AWP AWS Onboarding -----
 resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
   cloudguard_account_id          = var.awp_cloud_account_id
