@@ -319,7 +319,7 @@ resource "aws_iam_policy" "CloudGuardAWPSnapshotsPolicy" {
         Effect = "Allow"
         Action = [
           "ec2:CopySnapshot",
-          "ec2:CreateTags"
+          "ec2:CreateSnapshot"
         ]
         Resource : "arn:${data.aws_partition.current.partition}:ec2:*::snapshot/*"
         Condition = {
@@ -659,7 +659,7 @@ resource "aws_iam_policy" "CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicy"
       {
         Effect   = "Allow"
         Action   = local.is_in_account_hub_scan_mode_condition ? ["sts:AssumeRole"] : ["ec2:CreateTags"]
-        Resource = local.is_in_account_hub_scan_mode_condition ? aws_iam_role.CloudGuardAWPOperatorRole[0].arn : "*"
+        Resource = local.is_in_account_hub_scan_mode_condition ? "arn:${data.aws_partition.current.partition}:iam::*:role/CloudGuardAWPOperatorRole" : "*" # TODO 'CloudGuardAWPOperatorRole' from variable
       }
     ]
   })
@@ -676,7 +676,7 @@ resource "aws_iam_policy_attachment" "CloudGuardAWPSnapshotsUtilsLambdaExecution
 # The CloudGuardAWPOperatorRole
 resource "aws_iam_role" "CloudGuardAWPOperatorRole" {
   count       = local.is_in_account_sub_scan_mode_condition ? 1 : 0
-  name        = "CloudGuardAWPOperatorRole"
+  name        = "CloudGuardAWPOperatorRole" # TODO from variable?
   description = "Role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
