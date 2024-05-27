@@ -9,7 +9,7 @@ variable "awp_hub_external_account_id" {
 
   validation {
     condition     = var.awp_scan_mode == "inAccountSub" ? length(var.awp_hub_external_account_id) > 0 : true
-    error_message = local.is_required ? "awp_hub_external_account_id cannot be empty when scan mode is inAccountSub" : null
+    error_message = "awp_hub_external_account_id cannot be empty when scan mode is inAccountSub"
   }
 }
 
@@ -19,7 +19,7 @@ variable "awp_organization_id" {
 
   validation {
     condition     = var.awp_scan_mode == "inAccountHub" ? length(var.awp_organization_id) > 0 : true
-    error_message = local.is_required ? "awp_organization_id cannot be empty when scan mode is inAccountHub" : null
+    error_message = "awp_organization_id cannot be empty when scan mode is inAccountHub"
   }
 }
 
