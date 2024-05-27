@@ -130,10 +130,34 @@ resource "aws_iam_policy" "CloudGuardAWPVpcManagementPolicy" {
       {
         Effect = "Allow"
         Action = [
+          "ec2:CreateSubnet",
+          "ec2:CreateVpcEndpoint",
+        ]
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "aws:ResourceTag/Owner" = "CG.AWP"
+          }
+        }
+      },
+      {
+        Effect = "Allow"
+        Action = [
           "ec2:CreateVpc",
           "ec2:CreateSubnet",
           "ec2:CreateSecurityGroup",
           "ec2:CreateVpcEndpoint",
+        ]
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "aws:RequestTag/Owner" = "CG.AWP"
+          }
+        }
+      },
+      {
+        Effect = "Allow"
+        Action = [
           "ec2:DescribeVpcs",
           "ec2:DescribeSubnets",
           "ec2:DescribeRouteTables",
@@ -234,6 +258,11 @@ resource "aws_iam_policy" "CloudGuardAWPSecurityGroupManagementPolicy" {
           "ec2:CreateSecurityGroup"
         ]
         Resource = "*"
+        Condition = {
+          StringEquals = {
+            "aws:ResourceTag/Owner" = "CG.AWP"
+          }
+        }
       },
       {
         Effect = "Allow"
@@ -282,11 +311,9 @@ resource "aws_iam_policy" "CloudGuardAWPSnapshotsPolicy" {
       {
         Effect = "Allow"
         Action = [
-          "ec2:CreateSnapshot",
-          "ec2:DescribeRegions",
-          "ec2:DescribeSnapshots"
+          "ec2:CreateSnapshot"
         ]
-        Resource = "*"
+        Resource = "arn:${data.aws_partition.current.partition}:ec2:*:${data.aws_caller_identity.current.account_id}:volume/*"
       },
       {
         Effect = "Allow"
@@ -294,7 +321,32 @@ resource "aws_iam_policy" "CloudGuardAWPSnapshotsPolicy" {
           "ec2:CopySnapshot",
           "ec2:CreateTags"
         ]
-        Resource : "arn:aws:ec2:*::snapshot/*"
+        Resource : "arn:${data.aws_partition.current.partition}:ec2:*::snapshot/*"
+        Condition = {
+          StringEquals = {
+            "aws:RequestTag/Owner" = "CG.AWP"
+          }
+        }
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:CreateTags"
+        ]
+        Resource : "arn:${data.aws_partition.current.partition}:ec2:*::snapshot/*"
+        Condition = {
+          StringEquals = {
+            "ec2:CreateAction" = ["CreateSnapshot", "CopySnapshot"]
+          }
+        }
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:DescribeRegions",
+          "ec2:DescribeSnapshots"
+        ]
+        Resource = "*"
       },
       {
         Effect = "Allow"
@@ -546,7 +598,7 @@ resource "aws_iam_policy" "CloudGuardAWPCrossAccountRolePolicy" {
       {
         Effect   = "Allow",
         Action   = "iam:ListRoleTags",
-        Resource = "arn:${data.aws_partition.current.partition}:iam::*:role/${aws_iam_role.CloudGuardAWPCrossAccountRole.name}"
+        Resource = aws_iam_role.CloudGuardAWPCrossAccountRole.arn
       }
     ]
   })
@@ -607,7 +659,7 @@ resource "aws_iam_policy" "CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicy"
       {
         Effect   = "Allow"
         Action   = local.is_in_account_hub_scan_mode_condition ? ["sts:AssumeRole"] : ["ec2:CreateTags"]
-        Resource = local.is_in_account_hub_scan_mode_condition ? "arn:${data.aws_partition.current.partition}:iam::*:role/${aws_iam_role.CloudGuardAWPOperatorRole[0].name}" : "*"
+        Resource = local.is_in_account_hub_scan_mode_condition ? aws_iam_role.CloudGuardAWPOperatorRole[0].arn : "*"
       }
     ]
   })
