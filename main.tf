@@ -469,7 +469,7 @@ resource "aws_iam_policy" "CloudGuardAWPReEncryptionPolicy" {
           "kms:RevokeGrant",
           "kms:DescribeKey"
         ]
-        Resource = local.is_saas_scan_mode ? aws_kms_key.CloudGuardAWPKey[count.index].arn : "arn:${data.aws_partition.current.partition}:kms:*:${var.awp_hub_external_account_id}:alias/CloudGuardAWPKey" // TODO var.awp_hub_external_account_id --> how it filled?
+        Resource = local.is_saas_scan_mode ? aws_kms_key.CloudGuardAWPKey[count.index].arn : "arn:${data.aws_partition.current.partition}:kms:*:${var.awp_hub_external_account_id}:alias/CloudGuardAWPKey"
       },
       {
         Effect = "Allow"
@@ -518,7 +518,7 @@ resource "aws_iam_role" "CloudGuardAWPCrossAccountRole" {
   tags = local.common_tags
 
   # The `depends_on` attribute specifies that this IAM role depends on the `aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction` resource.
-  depends_on = [aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction] # TODO need this?
+  depends_on = [aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction]
 }
 
 # The CloudGuardAWPCrossAccountRolePolicy resource defines an IAM policy that is used to define the permissions for the CloudGuardAWPCrossAccountRole.
