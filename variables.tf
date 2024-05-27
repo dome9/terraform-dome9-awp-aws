@@ -12,7 +12,7 @@ variable "awp_hub_external_account_id" {
 variable "awp_organization_id" {
   description = "The AWS organization id in case of centralized account, AWP use it to restrict scanning accounts that belongs to the organization"
   type        = string
-  default     = null
+  default     = ""
 }
 
 variable "awp_scan_mode" {
