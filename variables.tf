@@ -4,21 +4,29 @@ variable "awp_cloud_account_id" {
 }
 
 variable "awp_hub_external_account_id" {
-  description = "EXTERNAL_AWS_ACCOUNT_NUMBER of the centralized account"
+  description = "centralized account EXTERNAL_AWS_ACCOUNT_NUMBER"
   type        = string
+
+  validation {
+    condition     = var.awp_scan_mode == "inAccountSub" ? length(var.awp_hub_external_account_id) > 0 : true
+    error_message = local.is_required ? "awp_hub_external_account_id cannot be empty when scan mode is inAccountSub" : null
+  }
 }
 
 variable "awp_organization_id" {
-  description = "The AWS organization id in case of centralized account"
+  description = "The AWS organization id in case of centralized account, AWP use it to restrict scanning accounts that belongs to the organization"
   type        = string
-  default     = ""
+
+  validation {
+    condition     = var.awp_scan_mode == "inAccountHub" ? length(var.awp_organization_id) > 0 : true
+    error_message = local.is_required ? "awp_organization_id cannot be empty when scan mode is inAccountHub" : null
+  }
 }
 
 variable "awp_scan_mode" {
   description = "AWP scan mode <inAccount|saas>" # the valid values are "inAccount" and "saas" when onboarding the AWS account to Dome9 AWP.
   type        = string
   default     = "inAccount"
-
 }
 
 variable "awp_cross_account_role_name" {
