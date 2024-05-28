@@ -852,7 +852,7 @@ resource "aws_lambda_invocation" "CloudGuardAWPSnapshotsUtilsCleanupFunctionInvo
   count         = local.is_proxy_lambda_required_condition ? 1 : 0
   function_name = aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction[count.index].function_name
   input = jsonencode({
-    "target_account_id" : data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.cloud_account_id
+    "target_account_id" : data.aws_caller_identity.current.account_id
   })
   lifecycle_scope = "CRUD"
   depends_on = [
