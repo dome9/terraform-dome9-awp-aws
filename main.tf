@@ -38,6 +38,7 @@ locals {
     Terraform                 = "true"
     "CG.AL.TF.MODULE_VERSION" = local.awp_module_version
   }, var.awp_additional_tags != null ? var.awp_additional_tags : {})
+
 }
 
 # This Terraform file defines the configuration for creating an IAM role that allows CloudGuard access to the AWS account.
@@ -746,10 +747,11 @@ resource "aws_lambda_function" "CloudGuardAWPSnapshotsUtilsFunction" {
   }
 
   tags = merge({
-    ConditionalDependsOnVpcManagementPolicy  = local.is_scanner_mode_condition ? aws_iam_policy.CloudGuardAWPVpcManagementPolicy[count.index].name : ""
-    ConditionalDependsOnSnapshotsPolicy      = local.is_scanned_mode_condition ? aws_iam_policy.CloudGuardAWPSnapshotsPolicy[count.index].name : ""
-    ConditionalDependsOnScannersPolicy       = local.is_scanner_mode_condition ? aws_iam_policy.CloudGuardAWPScannersPolicy[count.index].name : ""
-    ConditionalDependsOnKeyReplicationPolicy = local.is_hosting_key_condition ? aws_iam_policy.CloudGuardAWPKeyReplicationPolicy[count.index].name : ""
+    # TODO following relevant for cloudformation only - remove
+    # ConditionalDependsOnVpcManagementPolicy  = local.is_scanner_mode_condition ? aws_iam_policy.CloudGuardAWPVpcManagementPolicy[count.index].name : ""
+    # ConditionalDependsOnSnapshotsPolicy      = local.is_scanned_mode_condition ? aws_iam_policy.CloudGuardAWPSnapshotsPolicy[count.index].name : ""
+    # ConditionalDependsOnScannersPolicy       = local.is_scanner_mode_condition ? aws_iam_policy.CloudGuardAWPScannersPolicy[count.index].name : ""
+    # ConditionalDependsOnKeyReplicationPolicy = local.is_hosting_key_condition ? aws_iam_policy.CloudGuardAWPKeyReplicationPolicy[count.index].name : ""
     Terraform                                = "true"
     "CG.AL.TF.MODULE_VERSION"                = local.awp_module_version
   }, local.common_tags)
@@ -848,16 +850,61 @@ resource "aws_kms_alias" "CloudGuardAWPKeyAlias" {
 }
 
 # aws_lambda_invocation : The Lambda invocation that is used to cleanup dynamic resources before teardown.
-resource "aws_lambda_invocation" "CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation" {
-  count         = local.is_proxy_lambda_required_condition ? 1 : 0
+resource "aws_lambda_invocation" "CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_saas" {
+  count         = local.is_saas_scan_mode ? 1 : 0
   function_name = aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction[count.index].function_name
   input = jsonencode({
     "target_account_id" : data.aws_caller_identity.current.account_id
   })
   lifecycle_scope = "CRUD"
+
   depends_on = [
     aws_iam_policy_attachment.CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicyAttachment,
-    aws_cloudwatch_log_group.CloudGuardAWPSnapshotsUtilsLogGroup
+    aws_cloudwatch_log_group.CloudGuardAWPSnapshotsUtilsLogGroup,
+    aws_iam_policy_attachment.CloudGuardAWPKeyReplicationPolicyAttachment,
+    aws_iam_policy_attachment.CloudGuardAWPReEncryptionPolicyAttachment
+  ]
+}
+
+resource "aws_lambda_invocation" "CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_inAccount" {
+  count         = local.is_in_account_scan_mode ? 1 : 0
+  function_name = aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction[count.index].function_name
+  input = jsonencode({
+    "target_account_id" : data.aws_caller_identity.current.account_id
+  })
+  lifecycle_scope = "CRUD"
+
+  depends_on = [
+    aws_iam_policy_attachment.CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicyAttachment,
+    aws_cloudwatch_log_group.CloudGuardAWPSnapshotsUtilsLogGroup,
+    aws_iam_policy_attachment.CloudGuardAWPScannersReaderPolicyAttachment,
+    aws_iam_policy_attachment.CloudGuardAWPKeyUsagePolicyAttachment,
+    aws_iam_policy_attachment.CloudGuardAWPScannersPolicyAttachment,
+    aws_iam_policy_attachment.CloudGuardAWPSecurityGroupManagementPolicyAttachment,
+    aws_iam_policy_attachment.CloudGuardAWPVpcManagementPolicyAttachment,
+  ]
+}
+
+resource "aws_lambda_invocation" "CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_inAccountHub" {
+  count         = local.is_in_account_hub_scan_mode_condition ? 1 : 0
+  function_name = aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction[count.index].function_name
+  input = jsonencode({
+    "target_account_id" : data.aws_caller_identity.current.account_id
+  })
+  lifecycle_scope = "CRUD"
+
+  depends_on = [
+    aws_iam_policy_attachment.CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicyAttachment,
+    aws_cloudwatch_log_group.CloudGuardAWPSnapshotsUtilsLogGroup,
+    aws_iam_policy_attachment.CloudGuardAWPScannersReaderPolicyAttachment,
+    aws_iam_policy_attachment.CloudGuardAWPKeyUsagePolicyAttachment,
+    aws_iam_policy_attachment.CloudGuardAWPScannersPolicyAttachment,
+    aws_iam_policy_attachment.CloudGuardAWPSecurityGroupManagementPolicyAttachment,
+    aws_iam_policy_attachment.CloudGuardAWPVpcManagementPolicyAttachment,
+    aws_iam_policy_attachment.CloudGuardAWPKeyReplicationPolicyAttachment,
+    aws_iam_policy_attachment.CloudGuardAWPReEncryptionPolicyAttachment,
+    aws_iam_policy_attachment.CloudGuardAWPSnapshotsPolicyAttachment,
+    aws_iam_policy_attachment.CloudGuardAWPReaderPolicyAttachment
   ]
 }
 
@@ -884,7 +931,9 @@ resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
     aws_iam_policy_attachment.CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicyAttachment,
     aws_iam_policy_attachment.CloudGuardAWPCrossAccountRolePolicyAttachment,
     aws_iam_role.CloudGuardAWPCrossAccountRole,
-    aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation,
+    aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_saas,
+    aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_inAccount,
+    aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_inAccountHub,
     aws_kms_alias.CloudGuardAWPKeyAlias
   ]
 }
