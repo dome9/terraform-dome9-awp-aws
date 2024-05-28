@@ -847,19 +847,19 @@ resource "aws_kms_alias" "CloudGuardAWPKeyAlias" {
   ]
 }
 
-# # aws_lambda_invocation : The Lambda invocation that is used to cleanup dynamic resources before teardown.
-# resource "aws_lambda_invocation" "CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation" {
-#   count         = local.is_proxy_lambda_required_condition ? 1 : 0
-#   function_name = aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction[count.index].function_name
-#   input = jsonencode({
-#     "target_account_id" : data.aws_caller_identity.current.account_id
-#   })
-#   lifecycle_scope = "CRUD"
-#   depends_on = [
-#     aws_iam_policy_attachment.CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicyAttachment,
-#     aws_cloudwatch_log_group.CloudGuardAWPSnapshotsUtilsLogGroup
-#   ]
-# }
+# aws_lambda_invocation : The Lambda invocation that is used to cleanup dynamic resources before teardown.
+resource "aws_lambda_invocation" "CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation" {
+  count         = local.is_proxy_lambda_required_condition ? 1 : 0
+  function_name = aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction[count.index].function_name
+  input = jsonencode({
+    "target_account_id" : data.aws_caller_identity.current.account_id
+  })
+  lifecycle_scope = "CRUD"
+  depends_on = [
+    aws_iam_policy_attachment.CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicyAttachment,
+    aws_cloudwatch_log_group.CloudGuardAWPSnapshotsUtilsLogGroup
+  ]
+}
 
 # ----- Enable CloudGuard AWP AWS Onboarding -----
 resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
@@ -884,7 +884,7 @@ resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
     aws_iam_policy_attachment.CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicyAttachment,
     aws_iam_policy_attachment.CloudGuardAWPCrossAccountRolePolicyAttachment,
     aws_iam_role.CloudGuardAWPCrossAccountRole,
-    # aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation,
+    aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation,
     aws_kms_alias.CloudGuardAWPKeyAlias
   ]
 }
