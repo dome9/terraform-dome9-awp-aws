@@ -847,6 +847,19 @@ resource "aws_kms_alias" "CloudGuardAWPKeyAlias" {
   ]
 }
 
+# aws_lambda_invocation : The Lambda invocation that is used to cleanup dynamic resources before teardown.
+resource "aws_lambda_invocation" "CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation" {
+  function_name = aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction.function_name
+  input = jsonencode({
+    "target_account_id" : data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.cloud_account_id
+  })
+  lifecycle_scope = "CRUD"
+  depends_on = [
+    aws_iam_policy_attachment.CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicyAttachment,
+    aws_cloudwatch_log_group.CloudGuardAWPSnapshotsUtilsLogGroup
+  ]
+}
+
 # ----- Enable CloudGuard AWP AWS Onboarding -----
 resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
   cloudguard_account_id          = var.awp_cloud_account_id
@@ -870,7 +883,7 @@ resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
     aws_iam_policy_attachment.CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicyAttachment,
     aws_iam_policy_attachment.CloudGuardAWPCrossAccountRolePolicyAttachment,
     aws_iam_role.CloudGuardAWPCrossAccountRole,
-    # aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation, # TODO add this invocation resource
+    aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation,
     aws_kms_alias.CloudGuardAWPKeyAlias
   ]
 }
