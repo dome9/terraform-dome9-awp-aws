@@ -1,3 +1,21 @@
+# This Terraform file defines the configuration for creating an IAM roles that allows CloudGuard access to the AWS account.
+
+# The `data "aws_partition" "current"` block retrieves information about the current AWS partition.
+data "aws_partition" "current" {}
+
+# The `data "aws_caller_identity" "current"` block retrieves information about the current AWS caller identity.
+data "aws_caller_identity" "current" {}
+
+# The `data "aws_region" "current"` block retrieves information about the current AWS region.
+data "aws_region" "current" {
+  lifecycle {
+    postcondition {
+      condition     = self.name == local.region
+      error_message = "Error: AWP must be deployed in the same region as the CloudGuard Data Center: ${local.region} (Not in ${self.name})"
+    }
+  }
+}
+
 data "dome9_cloudaccount_aws" "cloud_account" {
   id = var.awp_cloud_account_id
 }
@@ -40,24 +58,6 @@ locals {
   }, var.awp_additional_tags != null ? var.awp_additional_tags : {})
 
 }
-
-# This Terraform file defines the configuration for creating an IAM role that allows CloudGuard access to the AWS account.
-
-# The `data "aws_partition" "current"` block retrieves information about the current AWS partition.
-data "aws_partition" "current" {}
-
-# The `data "aws_region" "current"` block retrieves information about the current AWS region.
-data "aws_region" "current" {
-  lifecycle {
-    postcondition {
-      condition     = self.name == local.region
-      error_message = "Error: AWP must be deployed in the same region as the CloudGuard Data Center: ${local.region} (Not in ${self.name})"
-    }
-  }
-}
-
-# The `data "aws_caller_identity" "current"` block retrieves information about the current AWS caller identity.
-data "aws_caller_identity" "current" {}
 
 # This policy provides the cross-account-role with the ability to read AWP scanner resources
 resource "aws_iam_policy" "CloudGuardAWPScannersReaderPolicy" {
@@ -737,7 +737,7 @@ resource "aws_lambda_function" "CloudGuardAWPSnapshotsUtilsFunction" {
     variables = {
       CP_AWP_AWS_ACCOUNT         = local.cloud_guard_backend_account_id
       CP_AWP_CURRENT_ACCOUNT     = data.aws_caller_identity.current.account_id
-      CP_AWP_SCANNER_ACCOUNT     = local.is_saas_scan_mode ? data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.cloud_account_id : var.awp_hub_external_account_id
+      CP_AWP_SCANNER_ACCOUNT     = local.is_saas_scan_mode ? locals.cloud_guard_backend_account_id : data.aws_caller_identity.current.account_id
       CP_AWP_MR_KMS_KEY_ID       = local.is_hosting_key_condition ? aws_kms_key.CloudGuardAWPKey[0].arn : ""
       CP_AWP_MR_KMS_KEY_ALIAS    = local.is_hosting_key_condition ? "alias/CloudGuardAWPKey" : ""
       CP_AWP_SCAN_MODE           = local.scan_mode
