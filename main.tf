@@ -862,7 +862,9 @@ resource "aws_lambda_invocation" "CloudGuardAWPSnapshotsUtilsCleanupFunctionInvo
     aws_iam_policy_attachment.CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicyAttachment,
     aws_cloudwatch_log_group.CloudGuardAWPSnapshotsUtilsLogGroup,
     aws_iam_policy_attachment.CloudGuardAWPKeyReplicationPolicyAttachment,
-    aws_iam_policy_attachment.CloudGuardAWPReEncryptionPolicyAttachment
+    aws_iam_policy_attachment.CloudGuardAWPReEncryptionPolicyAttachment,
+    aws_iam_policy_attachment.CloudGuardAWPSnapshotsPolicyAttachment,
+    aws_iam_policy_attachment.CloudGuardAWPReaderPolicyAttachment
   ]
 }
 
@@ -882,6 +884,8 @@ resource "aws_lambda_invocation" "CloudGuardAWPSnapshotsUtilsCleanupFunctionInvo
     aws_iam_policy_attachment.CloudGuardAWPScannersPolicyAttachment,
     aws_iam_policy_attachment.CloudGuardAWPSecurityGroupManagementPolicyAttachment,
     aws_iam_policy_attachment.CloudGuardAWPVpcManagementPolicyAttachment,
+    aws_iam_policy_attachment.CloudGuardAWPSnapshotsPolicyAttachment,
+    aws_iam_policy_attachment.CloudGuardAWPReaderPolicyAttachment
   ]
 }
 
