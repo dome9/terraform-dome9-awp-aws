@@ -737,7 +737,7 @@ resource "aws_lambda_function" "CloudGuardAWPSnapshotsUtilsFunction" {
     variables = {
       CP_AWP_AWS_ACCOUNT         = local.cloud_guard_backend_account_id
       CP_AWP_CURRENT_ACCOUNT     = data.aws_caller_identity.current.account_id
-      CP_AWP_SCANNER_ACCOUNT     = local.is_saas_scan_mode ? locals.cloud_guard_backend_account_id : data.aws_caller_identity.current.account_id
+      CP_AWP_SCANNER_ACCOUNT     = local.is_saas_scan_mode ? local.cloud_guard_backend_account_id : data.aws_caller_identity.current.account_id
       CP_AWP_MR_KMS_KEY_ID       = local.is_hosting_key_condition ? aws_kms_key.CloudGuardAWPKey[0].arn : ""
       CP_AWP_MR_KMS_KEY_ALIAS    = local.is_hosting_key_condition ? "alias/CloudGuardAWPKey" : ""
       CP_AWP_SCAN_MODE           = local.scan_mode
@@ -747,11 +747,6 @@ resource "aws_lambda_function" "CloudGuardAWPSnapshotsUtilsFunction" {
   }
 
   tags = merge({
-    # TODO following relevant for cloudformation only - remove
-    # ConditionalDependsOnVpcManagementPolicy  = local.is_scanner_mode_condition ? aws_iam_policy.CloudGuardAWPVpcManagementPolicy[count.index].name : ""
-    # ConditionalDependsOnSnapshotsPolicy      = local.is_scanned_mode_condition ? aws_iam_policy.CloudGuardAWPSnapshotsPolicy[count.index].name : ""
-    # ConditionalDependsOnScannersPolicy       = local.is_scanner_mode_condition ? aws_iam_policy.CloudGuardAWPScannersPolicy[count.index].name : ""
-    # ConditionalDependsOnKeyReplicationPolicy = local.is_hosting_key_condition ? aws_iam_policy.CloudGuardAWPKeyReplicationPolicy[count.index].name : ""
     Terraform                                = "true"
     "CG.AL.TF.MODULE_VERSION"                = local.awp_module_version
   }, local.common_tags)
