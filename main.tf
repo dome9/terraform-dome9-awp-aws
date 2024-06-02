@@ -23,6 +23,7 @@ data "dome9_cloudaccount_aws" "cloud_account" {
 }
 
 data "dome9_cloudaccount_aws" "centralized_cloud_account" {
+  count = var.awp_centralized_cloud_account_id != null ? 1 : 0
   id = var.awp_centralized_cloud_account_id
 }
 
