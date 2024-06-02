@@ -47,7 +47,7 @@ locals {
   awp_client_side_security_group_name               = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.awp_client_side_security_group_name
   cross_account_role_external_id                    = var.awp_cross_account_role_external_id != null ? var.awp_cross_account_role_external_id : data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.cross_account_role_external_id
   remote_snapshots_utils_function_s3_pre_signed_url = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.remote_snapshots_utils_function_s3_pre_signed_url
-  centralized_external_account_id                   = data.dome9_cloudaccount_aws.centralized_cloud_account.external_account_number
+  centralized_external_account_id                   = var.awp_centralized_cloud_account_id != null ? data.dome9_cloudaccount_aws.centralized_cloud_account[0].external_account_number : ""
   aws_organization_id                               = data.aws_organizations_organization.org.id
 
   is_saas_scan_mode                     = local.scan_mode == "saas"
