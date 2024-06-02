@@ -3,20 +3,14 @@ variable "awp_cloud_account_id" {
   type        = string
 }
 
-variable "awp_hub_external_account_id" {
-  description = "centralized account EXTERNAL_AWS_ACCOUNT_NUMBER"
+variable "awp_centralized_cloud_account_id" {
+  description = "centralized account EXTERNAL_AWS_ACCOUNT_NUMBER or EXTERNAL_AWS_ACCOUNT_NUMBER"
   type        = string
   default     = null
 }
 
-variable "awp_organization_id" {
-  description = "The AWS organization id in case of centralized account, AWP use it to restrict scanning accounts that belongs to the organization"
-  type        = string
-  default     = ""
-}
-
 variable "awp_scan_mode" {
-  description = "AWP scan mode <inAccount|saas>" # the valid values are "inAccount" and "saas" when onboarding the AWS account to Dome9 AWP.
+  description = "AWP scan mode <inAccount|saas|inAccountHub|inAccountSub>" # the valid values are "inAccount" and "saas" when onboarding the AWS account to Dome9 AWP.
   type        = string
   default     = "inAccount"
 }

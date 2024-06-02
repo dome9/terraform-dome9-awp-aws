@@ -16,8 +16,14 @@ data "aws_region" "current" {
   }
 }
 
+data "aws_organizations_organization" "org" {}
+
 data "dome9_cloudaccount_aws" "cloud_account" {
   id = var.awp_cloud_account_id
+}
+
+data "dome9_cloudaccount_aws" "centralized_cloud_account" {
+  id = var.awp_centralized_cloud_account_id
 }
 
 # The data source retrieves the onboarding data of an AWS account in Dome9 AWP.
@@ -40,6 +46,8 @@ locals {
   awp_client_side_security_group_name               = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.awp_client_side_security_group_name
   cross_account_role_external_id                    = var.awp_cross_account_role_external_id != null ? var.awp_cross_account_role_external_id : data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.cross_account_role_external_id
   remote_snapshots_utils_function_s3_pre_signed_url = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.remote_snapshots_utils_function_s3_pre_signed_url
+  centralized_external_account_id                   = data.dome9_cloudaccount_aws.centralized_cloud_account.external_account_number
+  aws_organization_id                               = data.aws_organizations_organization.org.id
 
   is_saas_scan_mode                     = local.scan_mode == "saas"
   is_in_account_scan_mode               = local.scan_mode == "inAccount"
@@ -522,7 +530,7 @@ resource "aws_iam_policy" "CloudGuardAWPReEncryptionPolicy" {
           "kms:RevokeGrant",
           "kms:DescribeKey"
         ]
-        Resource = local.is_saas_scan_mode ? aws_kms_key.CloudGuardAWPKey[count.index].arn : "arn:${data.aws_partition.current.partition}:kms:*:${var.awp_hub_external_account_id}:alias/CloudGuardAWPKey"
+        Resource = local.is_saas_scan_mode ? aws_kms_key.CloudGuardAWPKey[count.index].arn : "arn:${data.aws_partition.current.partition}:kms:*:${local.centralized_external_account_id}:alias/CloudGuardAWPKey"
       },
       {
         Effect = "Allow"
@@ -685,7 +693,7 @@ resource "aws_iam_role" "CloudGuardAWPOperatorRole" {
       {
         Effect = "Allow"
         Principal = {
-          AWS = var.awp_hub_external_account_id
+          AWS = local.centralized_external_account_id
         }
         Action = "sts:AssumeRole"
       }
@@ -747,8 +755,8 @@ resource "aws_lambda_function" "CloudGuardAWPSnapshotsUtilsFunction" {
   }
 
   tags = merge({
-    Terraform                                = "true"
-    "CG.AL.TF.MODULE_VERSION"                = local.awp_module_version
+    Terraform                 = "true"
+    "CG.AL.TF.MODULE_VERSION" = local.awp_module_version
   }, local.common_tags)
 }
 
@@ -813,7 +821,7 @@ resource "aws_kms_key" "CloudGuardAWPKey" {
           "kms:GenerateDataKey*"
         ]
         Resource  = "*"
-        Condition = local.is_saas_scan_mode ? {} : { StringEquals = { "aws:PrincipalOrgId" = var.awp_organization_id } }
+        Condition = local.is_saas_scan_mode ? {} : { StringEquals = { "aws:PrincipalOrgId" = local.aws_organization_id } }
       },
       {
         Sid    = local.is_saas_scan_mode ? "Allow attachment of persistent resources" : "Allow attachment of persistent resources for all sub accounts in the organization"
@@ -827,7 +835,7 @@ resource "aws_kms_key" "CloudGuardAWPKey" {
           "kms:RevokeGrant"
         ]
         Resource  = "*"
-        Condition = local.is_saas_scan_mode ? { Bool = { "kms:GrantIsForAWSResource" = true } } : { StringEquals = { "aws:PrincipalOrgId" = var.awp_organization_id } }
+        Condition = local.is_saas_scan_mode ? { Bool = { "kms:GrantIsForAWSResource" = true } } : { StringEquals = { "aws:PrincipalOrgId" = local.aws_organization_id } }
       }
     ]
   })
@@ -909,12 +917,11 @@ resource "aws_lambda_invocation" "CloudGuardAWPSnapshotsUtilsCleanupFunctionInvo
 
 # ----- Enable CloudGuard AWP AWS Onboarding -----
 resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
-  cloudguard_account_id          = var.awp_cloud_account_id
-  cross_account_role_name        = aws_iam_role.CloudGuardAWPCrossAccountRole.name
-  awp_hub_external_account_id    = var.awp_hub_external_account_id
-  awp_organization_id            = var.awp_organization_id
-  cross_account_role_external_id = local.cross_account_role_external_id
-  scan_mode                      = local.scan_mode
+  cloudguard_account_id            = var.awp_cloud_account_id
+  cross_account_role_name          = aws_iam_role.CloudGuardAWPCrossAccountRole.name
+  awp_centralized_cloud_account_id = local.centralized_external_account_id
+  cross_account_role_external_id   = local.cross_account_role_external_id
+  scan_mode                        = local.scan_mode
 
   dynamic "agentless_account_settings" {
     for_each = var.awp_account_settings_aws != null ? [var.awp_account_settings_aws] : []
