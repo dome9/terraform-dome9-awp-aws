@@ -474,7 +474,7 @@ resource "aws_iam_policy" "CloudGuardAWPKeyReplicationPolicy" {
           "kms:DeleteAlias",
           "kms:GetKeyPolicy"
         ]
-        Resource = aws_kms_key.CloudGuardAWPKey[count.index].arn
+        Resource = "arn:${data.aws_partition.current.partition}:kms:*:${data.aws_caller_identity.current.account_id}:key/${aws_kms_key.CloudGuardAWPKey[0].id}"
       },
       {
         Effect = "Allow"
