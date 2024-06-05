@@ -75,7 +75,7 @@ module "terraform-dome9-awp-aws" {
 | <a name="input_awp_cross_account_role_name"></a> [awp_cross_account_role_name](#input\_awp\_cross\_account\_role\_name) | AWP Cross account role name | `string` | `CloudGuardAWPCrossAccountRole` | no |
 | <a name="input_awp_cross_account_role_external_id"></a> [awp_cross_account_role_external_id](#input\_awp\_cross\_account\_role\_external\_id) | AWP Cross account role external id | `string` | `null` (auto-generated) | no |
 | <a name="input_awp_additional_tags"></a> [awp_additional_tags](#input\_awp\_additional\_tags) | Additional tags to be added to all aws resources created by this module  | `map(string)` | `{}` | no |
-|  [awp_account_settings_aws](#input\_awp\_account\_settings\_aws) | AWP Account settings for AWS | object | `null` | no |
+|  [awp_account_settings_aws](#input\_awp\_account\_settings\_aws) | AWP Account settings for AWS, supported only for inAccount and saas scan mode | object | `null` | no |
 
 <br/>
 
