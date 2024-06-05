@@ -919,7 +919,7 @@ resource "aws_lambda_invocation" "CloudGuardAWPSnapshotsUtilsCleanupFunctionInvo
 resource "time_sleep" "wait_for_cleanup" {
   count           = local.is_in_account_sub_scan_mode_condition ? 1 : 0
   create_duration = "30s"
-  depends_on = [ 
+  depends_on = [ # Wait for the cleanup function invocation to complete before proceeding with the next steps. this list should be identical to dome9 resource dependencies
     aws_iam_policy_attachment.CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicyAttachment,
     aws_iam_policy_attachment.CloudGuardAWPCrossAccountRolePolicyAttachment,
     aws_iam_role.CloudGuardAWPCrossAccountRole,
