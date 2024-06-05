@@ -916,20 +916,6 @@ resource "aws_lambda_invocation" "CloudGuardAWPSnapshotsUtilsCleanupFunctionInvo
   ]
 }
 
-resource "time_sleep" "wait_for_cleanup" {
-  count           = local.is_in_account_sub_scan_mode_condition ? 1 : 0
-  create_duration = "30s"
-  depends_on = [ # Wait for the cleanup function invocation to complete before proceeding with the next steps. this list should be identical to dome9 resource dependencies
-    aws_iam_policy_attachment.CloudGuardAWPSnapshotsUtilsLambdaExecutionRolePolicyAttachment,
-    aws_iam_policy_attachment.CloudGuardAWPCrossAccountRolePolicyAttachment,
-    aws_iam_role.CloudGuardAWPCrossAccountRole,
-    aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_saas,
-    aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_inAccount,
-    aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_inAccountHub,
-    aws_kms_alias.CloudGuardAWPKeyAlias
-   ]
-}
-
 # ----- Enable CloudGuard AWP AWS Onboarding -----
 resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
   cloudguard_account_id            = var.awp_cloud_account_id
@@ -955,7 +941,6 @@ resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
     aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_saas,
     aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_inAccount,
     aws_lambda_invocation.CloudGuardAWPSnapshotsUtilsCleanupFunctionInvocation_inAccountHub,
-    aws_kms_alias.CloudGuardAWPKeyAlias,
-    time_sleep.wait_for_cleanup
+    aws_kms_alias.CloudGuardAWPKeyAlias
   ]
 }
