@@ -4,7 +4,7 @@ variable "awp_cloud_account_id" {
 }
 
 variable "awp_centralized_cloud_account_id" {
-  description = "centralized account EXTERNAL_AWS_ACCOUNT_NUMBER or EXTERNAL_AWS_ACCOUNT_NUMBER"
+  description = "CENTRALIZED_CLOUDGUARD_ACCOUNT_ID or CENTRALIZED_EXTERNAL_AWS_ACCOUNT_NUMBER"
   type        = string
   default     = null
 }
@@ -41,5 +41,5 @@ variable "awp_account_settings_aws" {
     max_concurrent_scans_per_region = optional(number)       # Maximum concurrence scans per region
     custom_tags                     = optional(map(string))  # Custom tags to be added to AWP resources e.g. {"key1" = "value1", "key2" = "value2"}
   })
-  default = null
+  default = {}
 }
