@@ -10,7 +10,7 @@ variable "awp_centralized_cloud_account_id" {
 }
 
 variable "awp_scan_mode" {
-  description = "AWP scan mode <inAccount|saas|inAccountHub|inAccountSub>" # the valid values are "inAccount" and "saas" when onboarding the AWS account to Dome9 AWP.
+  description = "AWP scan mode, possible values are: <inAccount | saas | inAccountHub | inAccountSub>"
   type        = string
   default     = "inAccount"
 }
