@@ -72,7 +72,7 @@ locals {
 resource "aws_iam_policy" "CloudGuardAWPScannersReaderPolicy" {
   count = local.is_scanner_mode_condition ? 1 : 0
   name  = "CloudGuardAWPScannersReaderPolicy"
-  tags  = local.common_tags # TODO need this?, not appears in YAML?
+  tags  = local.common_tags
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -739,7 +739,7 @@ resource "aws_lambda_function" "CloudGuardAWPSnapshotsUtilsFunction" {
   role          = aws_iam_role.CloudGuardAWPSnapshotsUtilsLambdaExecutionRole.arn
   runtime       = "python3.9"
   memory_size   = 256
-  timeout       = local.remote_snapshots_utils_function_time_out # TODO defined wrongly in YAML
+  timeout       = local.remote_snapshots_utils_function_time_out
   filename      = local_file.CloudGuardAWPSnapshotsUtilsFunctionZip.filename
 
   environment {
