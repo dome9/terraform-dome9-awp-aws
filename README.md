@@ -29,7 +29,7 @@ module "terraform-dome9-awp-aws" {
   # e.g:
   awp_cross_account_role_name        = "<CrossAccountRoleName>"
   awp_cross_account_role_external_id = "<ExternalId>"
-  awp_centralized_cloud_account_id   = "in case of centralized onboarding, set the 'AWS account id' of the central account where the scans executed (CloudGuard Cloud Account ID or the AWS Account Number)"
+  awp_centralized_cloud_account_id   = "In case of centralized onboarding, this should be the account id (CloudGuard account id or AWS cloud account id) of the centralized account"
   awp_additional_tags                = {}  # e.g {"key1" = "value1", "key2" = "value2"}
     
 
@@ -70,7 +70,7 @@ module "terraform-dome9-awp-aws" {
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_awp_cloud_account_id"></a> [awp_cloud_account_id](#input\_awp\_cloud\_account\_id) | The Id of the AWS account, onboarded to CloudGuard (can be either the CloudGuard Account ID or the AWS Account Number) | `string` | n/a | yes |
-| <a name="input_awp_centralized_cloud_account_id"></a> [awp_centralized_cloud_account_id](#input\_awp\_centralized\_cloud\_account\_id) | The Id of the centralized AWS account where the scans take place  | `string` | n/a | in case of inAccountSub scan mode |
+| <a name="input_awp_centralized_cloud_account_id"></a> [awp_centralized_cloud_account_id](#input\_awp\_centralized\_cloud\_account\_id) | The Id of the centralized account (CloudGuard account id or AWS cloud account id) where the scans take place  | `string` | n/a | only for  inAccountSub scan mode |
 | <a name="input_awp_scan_mode"></a> [awp_scan_mode](#input\_awp\_scan\_mode) | The scan mode for the AWP `[ "inAccount" \| "saas" \| "inAccountHub" \| "inAccountSub" ]`| `string` | "inAccount" | yes |
 | <a name="input_awp_cross_account_role_name"></a> [awp_cross_account_role_name](#input\_awp\_cross\_account\_role\_name) | AWP Cross account role name | `string` | `CloudGuardAWPCrossAccountRole` | no |
 | <a name="input_awp_cross_account_role_external_id"></a> [awp_cross_account_role_external_id](#input\_awp\_cross\_account\_role\_external\_id) | AWP Cross account role external id | `string` | `null` (auto-generated) | no |
