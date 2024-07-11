@@ -1,5 +1,5 @@
 output "cloud_account_id" {
-  description = "Cloud Guard account ID"
+  description = "CloudGuard account ID"
   value       = resource.dome9_awp_aws_onboarding.awp_aws_onboarding_resource.cloud_account_id
 }
 

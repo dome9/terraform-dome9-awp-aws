@@ -7,6 +7,6 @@ module "terraform-dome9-awp-aws" {
     # This can be either the ID of the Dome9 Cloud Account resource or the AWS Account Number.
     awp_cloud_account_id = "012345678912"
 
-    # The scan mode for the AWP. Valid values are "inAccount" or "saas".
+    # The scan mode for the AWP. # Valid Values: "inAccount", "saas", "inAccountHub", "inAccountSub"
     awp_scan_mode = "inAccount"
 }
