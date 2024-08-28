@@ -39,7 +39,7 @@ variable "awp_account_settings_aws" {
     disabled_regions                = optional(list(string)) # List of regions to disable scanning e.g. ["us-east-1", "us-west-2"]
     scan_machine_interval_in_hours  = optional(number)       # Scan machine interval in hours
     max_concurrent_scans_per_region = optional(number)       # Maximum concurrence scans per region
-    in_account_scanner_vpc          = optional(string)       # The VPC Mode. Valid values: "ManagedByAWP", "ManagedByCustomer"
+    in_account_scanner_vpc          = optional(string)       # The VPC Mode. Valid values: "ManagedByAWP", "ManagedByCustomer"  (supported for inAccount and inAccountHub scan modes)
     custom_tags                     = optional(map(string))  # Custom tags to be added to AWP resources e.g. {"key1" = "value1", "key2" = "value2"}
   })
   default = {}
