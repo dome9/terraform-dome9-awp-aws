@@ -22,8 +22,3 @@ output "missing_awp_private_network_regions" {
   description = "List of regions in which AWP has issue to create virtual private network (VPC)"
   value       = resource.dome9_awp_aws_onboarding.awp_aws_onboarding_resource.missing_awp_private_network_regions
 }
-
-output "account_issues" {
-  description = "Indicates if there are any issues with AWP in the account"
-  value       = resource.dome9_awp_aws_onboarding.awp_aws_onboarding_resource.account_issues
-}

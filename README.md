@@ -133,10 +133,9 @@ module "terraform-dome9-awp-aws" {
 
 | Name | Description |
 |------|-------------|
-| <a name="output_account_issues"></a> [account\_issues](#output\_account\_issues) | Indicates if there are any issues with AWP in the account |
 | <a name="output_agentless_protection_enabled"></a> [agentless\_protection\_enabled](#output\_agentless\_protection\_enabled) | AWP Status |
 | <a name="output_awp_cross_account_role_arn"></a> [awp\_cross\_account\_role\_arn](#output\_awp\_cross\_account\_role\_arn) | Value of the cross account role arn that AWP assumes to scan the account |
-| <a name="output_cloud_account_id"></a> [cloud\_account\_id](#output\_cloud\_account\_id) | Cloud Guard account ID |
+| <a name="output_cloud_account_id"></a> [cloud\_account\_id](#output\_cloud\_account\_id) | CloudGuard account ID |
 | <a name="output_missing_awp_private_network_regions"></a> [missing\_awp\_private\_network\_regions](#output\_missing\_awp\_private\_network\_regions) | List of regions in which AWP has issue to create virtual private network (VPC) |
 | <a name="output_should_update"></a> [should\_update](#output\_should\_update) | This module is out of date and should be updated to the latest version. |
 <!-- END_TF_DOCS -->
