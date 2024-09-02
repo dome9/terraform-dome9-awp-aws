@@ -85,6 +85,7 @@ module "terraform-dome9-awp-aws" {
 |------|-------------|------|---------|:--------:|:--------:|
 | <a name="input_scan_machine_interval_in_hours"></a> [scan_machine_interval_in_hours](#input\_scan\_machine\_interval\_in\_hours) | Scan machine interval in hours | `number` | `24` | InAccount: `>=4`, SaaS: `>=24` | no |
 | <a name="input_max_concurrent_scans_per_region"></a> [max_concurrent_scans_per_region](#input\_max\_concurrent\_scans\_per\_region) | Maximum concurrent scans per region | `number` | `20` | `1` - `20` | no |
+| <a name="input_in_account_scanner_vpc"></a> [in_account_scanner_vpc](#input\_in\_account\_scanner\_vpc) |  The VPC Mode | `string` | `ManagedByAWP` | `ManagedByAWP`,`ManagedByCustomer` | no |
 | <a name="input_custom_tags"></a> [custom_tags](#input\_custom\_tags) | Custom tags to be added to AWP resources that are created during the scan process | `map(string)` | `{}` | `{"key" = "value", ...}` | no |
 | <a name="input_disabled_regions"></a> [disabled_regions](#input\_disabled\_regions) | List of AWS regions to disable AWP scanning | `list(string)` | `[]` | `["us-east-1", ...]`| no |
 
