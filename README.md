@@ -38,6 +38,7 @@ module "terraform-dome9-awp-aws" {
   awp_account_settings_aws = {
     scan_machine_interval_in_hours  = 24
     max_concurrent_scans_per_region = 20
+    in_account_scanner_vpc          = "ManagedByAWP"
     disabled_regions                = []   # e.g ["ap-northeast-1", "ap-northeast-2"]
     custom_tags                     = {}   # e.g {"key1" = "value1", "key2" = "value2"} 
   }
@@ -60,7 +61,7 @@ module "terraform-dome9-awp-aws" {
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >=5.30.0 |
-| <a name="requirement_dome9"></a> [dome9](#requirement\_dome9) | >=1.32.0 |
+| <a name="requirement_dome9"></a> [dome9](#requirement\_dome9) | >=1.35.8 |
 | <a name="requirement_http"></a> [http](#requirement\_http) | >=3.4.2 |
 | <a name="requirement_local"></a> [local](#requirement\_local) | >=2.5.1 |
 <!-- END_TF_HEADER_DOCS -->
@@ -84,6 +85,7 @@ module "terraform-dome9-awp-aws" {
 |------|-------------|------|---------|:--------:|:--------:|
 | <a name="input_scan_machine_interval_in_hours"></a> [scan_machine_interval_in_hours](#input\_scan\_machine\_interval\_in\_hours) | Scan machine interval in hours | `number` | `24` | InAccount: `>=4`, SaaS: `>=24` | no |
 | <a name="input_max_concurrent_scans_per_region"></a> [max_concurrent_scans_per_region](#input\_max\_concurrent\_scans\_per\_region) | Maximum concurrent scans per region | `number` | `20` | `1` - `20` | no |
+| <a name="input_in_account_scanner_vpc"></a> [in_account_scanner_vpc](#input\_in\_account\_scanner\_vpc) |  The VPC Mode | `string` | `ManagedByAWP` | `ManagedByAWP`,`ManagedByCustomer` | no |
 | <a name="input_custom_tags"></a> [custom_tags](#input\_custom\_tags) | Custom tags to be added to AWP resources that are created during the scan process | `map(string)` | `{}` | `{"key" = "value", ...}` | no |
 | <a name="input_disabled_regions"></a> [disabled_regions](#input\_disabled\_regions) | List of AWS regions to disable AWP scanning | `list(string)` | `[]` | `["us-east-1", ...]`| no |
 
@@ -133,10 +135,9 @@ module "terraform-dome9-awp-aws" {
 
 | Name | Description |
 |------|-------------|
-| <a name="output_account_issues"></a> [account\_issues](#output\_account\_issues) | Indicates if there are any issues with AWP in the account |
 | <a name="output_agentless_protection_enabled"></a> [agentless\_protection\_enabled](#output\_agentless\_protection\_enabled) | AWP Status |
 | <a name="output_awp_cross_account_role_arn"></a> [awp\_cross\_account\_role\_arn](#output\_awp\_cross\_account\_role\_arn) | Value of the cross account role arn that AWP assumes to scan the account |
-| <a name="output_cloud_account_id"></a> [cloud\_account\_id](#output\_cloud\_account\_id) | Cloud Guard account ID |
+| <a name="output_cloud_account_id"></a> [cloud\_account\_id](#output\_cloud\_account\_id) | CloudGuard account ID |
 | <a name="output_missing_awp_private_network_regions"></a> [missing\_awp\_private\_network\_regions](#output\_missing\_awp\_private\_network\_regions) | List of regions in which AWP has issue to create virtual private network (VPC) |
 | <a name="output_should_update"></a> [should\_update](#output\_should\_update) | This module is out of date and should be updated to the latest version. |
 <!-- END_TF_DOCS -->

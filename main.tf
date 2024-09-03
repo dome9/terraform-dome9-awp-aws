@@ -34,7 +34,7 @@ data "dome9_awp_aws_onboarding_data" "dome9_awp_aws_onboarding_data_source" {
 
 # Define local values used in multiple places in the configuration.
 locals {
-  awp_module_version                                = "8"
+  awp_module_version                                = "10"
   scan_mode                                         = var.awp_scan_mode
   stage                                             = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.stage
   region                                            = data.dome9_awp_aws_onboarding_data.dome9_awp_aws_onboarding_data_source.region
@@ -82,7 +82,11 @@ resource "aws_iam_policy" "CloudGuardAWPScannersReaderPolicy" {
         Action = [
           "ec2:DescribeInstances",
           "ec2:DescribeVolumes",
-          "ec2:DescribeRegions"
+          "ec2:DescribeRegions",
+          "ec2:DescribeVpcs",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeRouteTables",
+          "ec2:DescribeSecurityGroups",
         ]
         Resource = "*"
       }
@@ -153,6 +157,19 @@ resource "aws_iam_policy" "CloudGuardAWPVpcManagementPolicy" {
       {
         Effect = "Allow"
         Action = [
+          "ec2:CreateSubnet",
+          "ec2:CreateVpcEndpoint",
+        ]
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "aws:ResourceTag/CG_AWP_OWNER" = "CG.AWP"
+          }
+        }
+      },
+      {
+        Effect = "Allow"
+        Action = [
           "ec2:CreateVpc",
           "ec2:CreateSubnet",
           "ec2:CreateSecurityGroup",
@@ -162,6 +179,21 @@ resource "aws_iam_policy" "CloudGuardAWPVpcManagementPolicy" {
         Condition = {
           StringEquals = {
             "aws:RequestTag/Owner" = "CG.AWP"
+          }
+        }
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:CreateVpc",
+          "ec2:CreateSubnet",
+          "ec2:CreateSecurityGroup",
+          "ec2:CreateVpcEndpoint",
+        ]
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "aws:RequestTag/CG_AWP_OWNER" = "CG.AWP"
           }
         }
       },
@@ -201,10 +233,34 @@ resource "aws_iam_policy" "CloudGuardAWPVpcManagementPolicy" {
             "aws:ResourceTag/Owner" = "CG.AWP"
           }
         }
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:ModifySubnetAttribute",
+          "ec2:AssociateRouteTable",
+          "ec2:DeleteVpc",
+          "ec2:DeleteSubnet",
+          "ec2:DeleteVolume",
+          "ec2:DeleteInternetGateway",
+          "ec2:RevokeSecurityGroupEgress",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:DeleteSecurityGroup",
+          "ec2:DeleteVpcEndpoints",
+          "ec2:CreateNetworkAclEntry"
+        ]
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "aws:ResourceTag/CG_AWP_OWNER" = "CG.AWP"
+          }
+        }
       }
     ]
   })
 }
+
 
 # Policy attachment for 'CloudGuardAWPReaderPolicy'
 resource "aws_iam_policy_attachment" "CloudGuardAWPVpcManagementPolicyAttachment" {
@@ -270,7 +326,19 @@ resource "aws_iam_policy" "CloudGuardAWPSecurityGroupManagementPolicy" {
         Resource = "*"
         Condition = {
           StringEquals = {
-            "aws:ResourceTag/Owner" = "CG.AWP"
+            "aws:RequestTag/Owner" = "CG.AWP"
+          }
+        }
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:CreateSecurityGroup"
+        ]
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "aws:RequestTag/CG_AWP_OWNER" = "CG.AWP"
           }
         }
       },
@@ -297,10 +365,23 @@ resource "aws_iam_policy" "CloudGuardAWPSecurityGroupManagementPolicy" {
             "aws:ResourceTag/Owner" = "CG.AWP"
           }
         }
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:DeleteSecurityGroup"
+        ]
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "aws:ResourceTag/CG_AWP_OWNER" = "CG.AWP"
+          }
+        }
       }
     ]
   })
 }
+
 
 # Policy attachment for 'CloudGuardAWPSecurityGroupManagementPolicy'
 resource "aws_iam_policy_attachment" "CloudGuardAWPSecurityGroupManagementPolicyAttachment" {
@@ -331,7 +412,7 @@ resource "aws_iam_policy" "CloudGuardAWPSnapshotsPolicy" {
           "ec2:CopySnapshot",
           "ec2:CreateSnapshot"
         ]
-        Resource : "arn:${data.aws_partition.current.partition}:ec2:*::snapshot/*"
+        Resource = "arn:${data.aws_partition.current.partition}:ec2:*::snapshot/*"
         Condition = {
           StringEquals = {
             "aws:RequestTag/Owner" = "CG.AWP"
@@ -341,9 +422,22 @@ resource "aws_iam_policy" "CloudGuardAWPSnapshotsPolicy" {
       {
         Effect = "Allow"
         Action = [
+          "ec2:CopySnapshot",
+          "ec2:CreateSnapshot"
+        ]
+        Resource = "arn:${data.aws_partition.current.partition}:ec2:*::snapshot/*"
+        Condition = {
+          StringEquals = {
+            "aws:RequestTag/CG_AWP_OWNER" = "CG.AWP"
+          }
+        }
+      },
+      {
+        Effect = "Allow"
+        Action = [
           "ec2:CreateTags"
         ]
-        Resource : "arn:${data.aws_partition.current.partition}:ec2:*::snapshot/*"
+        Resource = "arn:${data.aws_partition.current.partition}:ec2:*::snapshot/*"
         Condition = {
           StringEquals = {
             "ec2:CreateAction" = ["CreateSnapshot", "CopySnapshot"]
@@ -370,6 +464,32 @@ resource "aws_iam_policy" "CloudGuardAWPSnapshotsPolicy" {
             "aws:ResourceTag/Owner" = "CG.AWP"
           }
         }
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:DeleteSnapshot",
+          "ec2:ModifySnapshotAttribute"
+        ]
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "aws:ResourceTag/CG_AWP_OWNER" = "CG.AWP"
+          }
+        }
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:DeleteSnapshot",
+          "ec2:ModifySnapshotAttribute"
+        ]
+        Resource = "*"
+        Condition = {
+          StringLike = {
+            "aws:ResourceTag/CG.AL.InstanceID" = "i-*"
+          }
+        }
       }
     ]
   })
@@ -394,10 +514,16 @@ resource "aws_iam_policy" "CloudGuardAWPScannersPolicy" {
       {
         Effect = "Allow"
         Action = [
-          "ec2:RunInstances",
+          "ec2:RunInstances"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
           "ec2:DescribeInstances",
           "ec2:DescribeVolumes",
-          "ec2:DescribeRegions",
+          "ec2:DescribeRegions"
         ]
         Resource = "*"
       },
@@ -417,9 +543,22 @@ resource "aws_iam_policy" "CloudGuardAWPScannersPolicy" {
       {
         Effect = "Allow"
         Action = [
+          "ec2:TerminateInstances",
+          "ec2:DeleteVolume"
+        ]
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "aws:ResourceTag/CG_AWP_OWNER" = "CG.AWP"
+          }
+        }
+      },
+      {
+        Effect = "Allow"
+        Action = [
           "iam:CreateServiceLinkedRole"
         ]
-        Resource : "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/spot.amazonaws.com/AWSServiceRoleForEC2Spot"
+        Resource = "arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/spot.amazonaws.com/AWSServiceRoleForEC2Spot"
       }
     ]
   })
@@ -930,6 +1069,7 @@ resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
       disabled_regions                = agentless_account_settings.value.disabled_regions
       scan_machine_interval_in_hours  = agentless_account_settings.value.scan_machine_interval_in_hours
       max_concurrent_scans_per_region = agentless_account_settings.value.max_concurrent_scans_per_region
+      in_account_scanner_vpc          = agentless_account_settings.value.in_account_scanner_vpc
       custom_tags                     = agentless_account_settings.value.custom_tags
     }
   }
