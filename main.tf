@@ -62,6 +62,7 @@ locals {
 
   common_tags = merge({
     Owner                     = "CG.AWP"
+    CG_AWP_OWNER              = "CG.AWP"
     Terraform                 = "true"
     "CG.AL.TF.MODULE_VERSION" = local.awp_module_version
   }, var.awp_additional_tags != null ? var.awp_additional_tags : {})
