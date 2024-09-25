@@ -44,7 +44,7 @@ module "terraform-dome9-awp-aws" {
   awp_cloud_account_id = dome9_cloudaccount_aws.my_aws_account.id # [<CLOUDGUARD_ACCOUNT_ID | <AWS_ACCOUNT_ID>]  
   awp_scan_mode        = "inAccount"                              # [inAccount | saas | inAccountHub | inAccountSub]
   # in case that 'inAccountSub' scan mode is selected, the following parameter is required
-	# awp_centralized_account_id = "<CENTRALIZED_ACCOUNT_ID> or <AWS_ACCOUNT_ID>"
+  # awp_centralized_cloud_account_id = "<CENTRALIZED_ACCOUNT_ID> or <AWS_ACCOUNT_ID>"
 
   # Optional customizations:
   awp_cross_account_role_name        = "AWPCrossAccountRoleName"
