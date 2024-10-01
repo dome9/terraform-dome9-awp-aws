@@ -723,35 +723,47 @@ resource "aws_iam_role" "CloudGuardAWPCrossAccountRole" {
   depends_on = [aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction]
 }
 
+
 # The CloudGuardAWPCrossAccountRolePolicy resource defines an IAM policy that is used to define the permissions for the CloudGuardAWPCrossAccountRole.
 resource "aws_iam_policy" "CloudGuardAWPCrossAccountRolePolicy" {
-  count       = 1
+  count       = !local.is_in_account_sub_scan_mode_condition
   name        = "CloudGuardAWPCrossAccountRolePolicy"
   description = "Policy for CloudGuardAWPCrossAccountRole"
   tags        = local.common_tags
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = flatten(concat(
-      local.is_in_account_sub_scan_mode_condition ? [
-        {
-          Effect   = "Allow"
-          Action   = ["iam:GetRole"]
-          Resource = aws_iam_role.CloudGuardAWPOperatorRole[0].arn
-        },
-        {
-          Effect   = "Allow",
-          Action   = "iam:ListRoleTags",
-          Resource = aws_iam_role.CloudGuardAWPCrossAccountRole.arn
-        }
-      ] : [
-        {
-          Effect   = "Allow",
-          Action   = "iam:ListRoleTags",
-          Resource = aws_iam_role.CloudGuardAWPCrossAccountRole.arn
-        }
-      ]
-    ))
+    Statement = [
+      {
+        Effect   = "Allow",
+        Action   = "iam:ListRoleTags",
+        Resource = aws_iam_role.CloudGuardAWPCrossAccountRole.arn
+      }
+    ]
+  })
+}
+
+# The CloudGuardAWPCrossAccountRolePolicy resource defines an IAM policy that is used to define the permissions for the CloudGuardAWPCrossAccountRole.
+resource "aws_iam_policy" "CloudGuardAWPCrossAccountRolePolicySub" {
+  count       = local.is_in_account_sub_scan_mode_condition
+  name        = "CloudGuardAWPCrossAccountRolePolicy"
+  description = "Policy for CloudGuardAWPCrossAccountRole"
+  tags        = local.common_tags
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "iam:GetRole"
+        Resource = aws_iam_role.CloudGuardAWPOperatorRole[0].arn
+      },
+      {
+        Effect   = "Allow",
+        Action   = "iam:ListRoleTags",
+        Resource = aws_iam_role.CloudGuardAWPCrossAccountRole.arn
+      }
+    ]
   })
 }
 
@@ -759,7 +771,7 @@ resource "aws_iam_policy" "CloudGuardAWPCrossAccountRolePolicy" {
 resource "aws_iam_policy_attachment" "CloudGuardAWPCrossAccountRolePolicyAttachment" {
   count      = 1
   name       = "CloudGuardAWPCrossAccountRolePolicyAttachment"
-  policy_arn = aws_iam_policy.CloudGuardAWPCrossAccountRolePolicy[0].arn
+  policy_arn = local.is_in_account_sub_scan_mode_condition ? aws_iam_policy.CloudGuardAWPCrossAccountRolePolicySub[0].arn : aws_iam_policy.CloudGuardAWPCrossAccountRolePolicy[0].arn
   roles      = [aws_iam_role.CloudGuardAWPCrossAccountRole.name]
 }
 
