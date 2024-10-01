@@ -732,25 +732,26 @@ resource "aws_iam_policy" "CloudGuardAWPCrossAccountRolePolicy" {
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "cloudformation:DescribeStacks"
-        ]
-        Resource = "arn:${data.aws_partition.current.partition}:cloudformation:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:stack/*"
-      },
-      {
-        Effect   = "Allow"
-        Action   = local.is_in_account_sub_scan_mode_condition ? ["iam:GetRole"] : ["cloudformation:DescribeStacks"]
-        Resource = local.is_in_account_sub_scan_mode_condition ? aws_iam_role.CloudGuardAWPOperatorRole[0].arn : "arn:${data.aws_partition.current.partition}:cloudformation:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:stack/*"
-      },
-      {
-        Effect   = "Allow",
-        Action   = "iam:ListRoleTags",
-        Resource = aws_iam_role.CloudGuardAWPCrossAccountRole.arn
-      }
-    ]
+    Statement = flatten(concat(
+      local.is_in_account_sub_scan_mode_condition ? [
+        {
+          Effect   = "Allow"
+          Action   = ["iam:GetRole"]
+          Resource = aws_iam_role.CloudGuardAWPOperatorRole[0].arn
+        },
+        {
+          Effect   = "Allow",
+          Action   = "iam:ListRoleTags",
+          Resource = aws_iam_role.CloudGuardAWPCrossAccountRole.arn
+        }
+      ] : [
+        {
+          Effect   = "Allow",
+          Action   = "iam:ListRoleTags",
+          Resource = aws_iam_role.CloudGuardAWPCrossAccountRole.arn
+        }
+      ]
+    ))
   })
 }
 
