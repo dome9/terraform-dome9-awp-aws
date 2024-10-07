@@ -723,7 +723,6 @@ resource "aws_iam_role" "CloudGuardAWPCrossAccountRole" {
   depends_on = [aws_lambda_function.CloudGuardAWPSnapshotsUtilsFunction]
 }
 
-
 # The CloudGuardAWPCrossAccountRolePolicy resource defines an IAM policy that is used to define the permissions for the CloudGuardAWPCrossAccountRole.
 resource "aws_iam_policy" "CloudGuardAWPCrossAccountRolePolicy" {
   count       = local.is_in_account_sub_scan_mode_condition ? 0 : 1
@@ -743,7 +742,7 @@ resource "aws_iam_policy" "CloudGuardAWPCrossAccountRolePolicy" {
   })
 }
 
-# The CloudGuardAWPCrossAccountRolePolicy resource defines an IAM policy that is used to define the permissions for the CloudGuardAWPCrossAccountRole.
+# The CloudGuardAWPCrossAccountRolePolicySub resource defines an IAM policy that is used to define the permissions for the CloudGuardAWPCrossAccountRole.
 resource "aws_iam_policy" "CloudGuardAWPCrossAccountRolePolicySub" {
   count       = local.is_in_account_sub_scan_mode_condition ? 1 : 0
   name        = "CloudGuardAWPCrossAccountRolePolicy"
