@@ -1075,6 +1075,7 @@ resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
   awp_centralized_cloud_account_id = local.centralized_external_account_id
   cross_account_role_external_id   = local.cross_account_role_external_id
   scan_mode                        = local.scan_mode
+  awp_version                      = local.awp_module_version
 
   dynamic "agentless_account_settings" {
     for_each = var.awp_account_settings_aws != null ? [var.awp_account_settings_aws] : []
