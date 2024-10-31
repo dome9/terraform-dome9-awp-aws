@@ -4,7 +4,7 @@ terraform {
   required_providers {
     dome9 = {
       source = "dome9/dome9"
-      version = ">=1.35.8"
+      version = ">=1.39.0"
     }
     aws = {
       source  = "hashicorp/aws"

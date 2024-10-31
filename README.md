@@ -61,7 +61,7 @@ module "terraform-dome9-awp-aws" {
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >=5.30.0 |
-| <a name="requirement_dome9"></a> [dome9](#requirement\_dome9) | >=1.35.8 |
+| <a name="requirement_dome9"></a> [dome9](#requirement\_dome9) | >=1.39.0 |
 | <a name="requirement_http"></a> [http](#requirement\_http) | >=3.4.2 |
 | <a name="requirement_local"></a> [local](#requirement\_local) | >=2.5.1 |
 <!-- END_TF_HEADER_DOCS -->
@@ -96,6 +96,7 @@ module "terraform-dome9-awp-aws" {
 |------|------|
 | [aws_cloudwatch_log_group.CloudGuardAWPSnapshotsUtilsLogGroup](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_iam_policy.CloudGuardAWPCrossAccountRolePolicy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.CloudGuardAWPCrossAccountRolePolicySub](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.CloudGuardAWPKeyReplicationPolicy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.CloudGuardAWPKeyUsagePolicy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.CloudGuardAWPProxyLambdaManagementPolicy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
