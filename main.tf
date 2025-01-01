@@ -1084,6 +1084,7 @@ resource "dome9_awp_aws_onboarding" "awp_aws_onboarding_resource" {
       scan_machine_interval_in_hours  = agentless_account_settings.value.scan_machine_interval_in_hours
       max_concurrent_scans_per_region = agentless_account_settings.value.max_concurrent_scans_per_region
       in_account_scanner_vpc          = agentless_account_settings.value.in_account_scanner_vpc
+      scan_aws_licensed_images        = agentless_account_settings.value.scan_aws_licensed_images
       custom_tags                     = agentless_account_settings.value.custom_tags
     }
   }
