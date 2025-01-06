@@ -889,7 +889,7 @@ resource "aws_lambda_function" "CloudGuardAWPSnapshotsUtilsFunction" {
   handler       = "snapshots_utils.lambda_handler"
   description   = "CloudGuard AWP Proxy for managing remote actions and resources"
   role          = aws_iam_role.CloudGuardAWPSnapshotsUtilsLambdaExecutionRole.arn
-  runtime       = "python3.9"
+  runtime       = "python3.10"
   memory_size   = 256
   timeout       = local.remote_snapshots_utils_function_time_out
   filename      = local_file.CloudGuardAWPSnapshotsUtilsFunctionZip.filename
